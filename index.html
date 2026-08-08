@@ -148,6 +148,8 @@ body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; ba
 .feedback-warning { background: #fef3c7; border: 2px solid var(--warning); color: #92400e; }
 .navigation { display: flex; justify-content: space-between; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
 .navigation .btn { flex: 1; min-width: 140px; }
+.check-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.check-btns .btn { flex: none; min-width: 160px; }
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 20px; }
 .modal-overlay.active { opacity: 1; visibility: visible; }
 .modal { background: white; border-radius: 16px; padding: 32px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 12px 40px rgba(30, 58, 138, 0.22); transform: scale(0.9); transition: transform 0.3s ease; }
@@ -208,7 +210,10 @@ body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; ba
 .pair-num { position:absolute; top:-9px; right:-9px; width:20px; height:20px; border-radius:50%; color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.25); }
 .pair-1 .pair-num{background:#2563eb;} .pair-2 .pair-num{background:#9333ea;} .pair-3 .pair-num{background:#ea580c;} .pair-4 .pair-num{background:#0d9488;}
 .matrix-hint { font-size: 14px; color: var(--text-muted); margin: 8px 0 14px; }
-.risk-matrix { display: grid; grid-template-columns: 34px 92px repeat(3, 1fr); grid-template-rows: auto auto repeat(3, auto); gap: 10px; background: #f8fafc; border: 2px solid var(--border); border-radius: 14px; padding: 16px; margin: 20px 0; }
+/* ===== 🆕 SCROLL-ОБГОРТКА ДЛЯ МАТРИЦІ ===== */
+.matrix-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; padding-bottom: 6px; }
+.matrix-mobile-hint { display: none; font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 6px; }
+.risk-matrix { display: grid; grid-template-columns: 34px 92px repeat(3, 1fr); grid-template-rows: auto auto repeat(3, auto); gap: 10px; background: #f8fafc; border: 2px solid var(--border); border-radius: 14px; padding: 16px; margin: 0; }
 .matrix-axis-top { grid-column: 3 / 6; grid-row: 1; text-align: center; font-weight: 800; color: var(--primary); font-size: 15px; letter-spacing: .5px; }
 .matrix-axis-left { grid-column: 1; grid-row: 3 / 6; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-weight: 800; color: var(--primary); font-size: 15px; letter-spacing: .5px; align-self: center; justify-self: center; }
 .matrix-corner { grid-column: 2; grid-row: 1 / 3; }
@@ -260,7 +265,6 @@ body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; ba
 .mc-red { border-top-color: #dc2626; } .mc-yellow { border-top-color: #f59e0b; }
 .section-subtitle { font-size: 17px; color: var(--primary-dark); margin: 20px 0 10px; font-weight: 700; }
 .situation-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px solid #93c5fd; border-radius: 12px; padding: 16px; margin: 16px 0; font-size: 15px; }
-/* ===== 🆕 КАРТКИ РИЗИКІВ (Завдання 3, Крок 3) ===== */
 .risk-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:20px 0;}
 .risk-card{background:#fff;border:2px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:all .25s;}
 .risk-card img{width:100%;height:140px;object-fit:cover;display:block;}
@@ -294,12 +298,21 @@ body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; ba
 .hero-illustration { padding: 24px 16px; min-height: 250px; }
 .hero-navigation { padding: 20px 16px; }
 .navigation .btn { width: 100%; min-width: 100%; }
+.check-btns { flex-direction: column; }
+.check-btns .btn { width: 100%; min-width: 100%; }
 section.card > div[style*="grid-template-columns"] { display: flex !important; flex-direction: column !important; gap: 16px !important; }
 .task-options, .category-options { grid-template-columns: 1fr !important; }
+.risk-matrix { min-width: 540px; gap: 8px; padding: 12px; }
+.matrix-mobile-hint { display: block; }
+.matrix-cell { min-height: 84px; font-size: 12px; padding: 8px; }
+.matrix-col-head { font-size: 11px; }
+.matrix-row-head { font-size: 11px; padding-right: 6px; }
+.matrix-axis-top, .matrix-axis-left { font-size: 13px; }
 }
 @media (max-width: 640px) {
-.risk-matrix { grid-template-columns: 24px 64px repeat(3, 1fr); gap: 6px; padding: 10px; }
-.matrix-cell { min-height: 70px; font-size: 10.5px; }
+.risk-matrix { grid-template-columns: 26px 70px repeat(3, 1fr); min-width: 520px; }
+.matrix-cell { min-height: 76px; font-size: 11px; }
+.matrix-cell span { display: none; }
 .matrix-col-head span { display: none; }
 .matrix-row-head, .matrix-col-head { font-size: 10px; }
 }
@@ -383,20 +396,24 @@ section.card > div[style*="grid-template-columns"] { display: flex !important; f
 <div>
 <p class="mb-16"><strong>Чому таке рішення може бути небезпечним?</strong></p>
 <div class="task-options" id="s1Task1Options">
-<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingle(this); checkSingleTask('#s1Task1Options','s1Task1Feedback','step1_task1','Відкриті мережі не шифрують трафік — шахраї можуть перехопити паролі та банківські дані.')" onkeydown="kbActivate(event,this)">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)">
 <div class="option-radio"></div>
 <div class="option-text"><div class="option-label">🕵️ До відкритої мережі можуть підключитися шахраї та перехопити особисті й банківські дані</div></div>
 </div>
-<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s1Task1Options','s1Task1Feedback','step1_task1','')" onkeydown="kbActivate(event,this)">
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)">
 <div class="option-radio"></div>
 <div class="option-text"><div class="option-label">✅ Це безпечно: мережі торгових центрів завжди надійно захищені</div><div class="option-explanation">❌ Відкрита мережа не має шифрування — дані передаються «відкрито».</div></div>
 </div>
-<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s1Task1Options','s1Task1Feedback','step1_task1','')" onkeydown="kbActivate(event,this)">
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)">
 <div class="option-radio"></div>
 <div class="option-text"><div class="option-label">🐢 Єдиний ризик — повільна швидкість інтернету</div><div class="option-explanation">❌ Головний ризик — інформаційний: витік особистих даних.</div></div>
 </div>
 </div>
 <div id="s1Task1Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="check-btns">
+<button class="btn btn-primary" onclick="checkSingleTask('#s1Task1Options','s1Task1Feedback','step1_task1','Відкриті мережі не шифрують трафік — шахраї можуть перехопити паролі та банківські дані.')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retrySingle('#s1Task1Options','s1Task1Feedback','step1_task1')">🔄 Спробувати ще раз</button>
+</div>
 </div>
 </div>
 <div class="navigation">
@@ -589,6 +606,7 @@ section.card > div[style*="grid-template-columns"] { display: flex !important; f
 <p>Чим вища ймовірність події та серйозніші її наслідки — тим вищий рівень ризику.</p>
 </div>
 <p class="matrix-hint">👆 Натисни на клітинку матриці, щоб побачити опис і приклади рівня ризику:</p>
+<div class="matrix-scroll">
 <div class="risk-matrix" role="group" aria-label="Матриця оцінки рівня ризику">
 <div class="matrix-axis-top">НАСЛІДКИ (S) →</div>
 <div class="matrix-axis-left">ЙМОВІРНІСТЬ (P) →</div>
@@ -609,6 +627,8 @@ section.card > div[style*="grid-template-columns"] { display: flex !important; f
 <button type="button" class="matrix-cell lvl-low" style="grid-row:5;grid-column:4;" onclick="openMatrixCell('low-medium')" aria-label="Низька ймовірність, середні наслідки — низький ризик"><strong>🟢 Низький</strong><span>Контроль і спостереження</span></button>
 <button type="button" class="matrix-cell lvl-medium" style="grid-row:5;grid-column:5;" onclick="openMatrixCell('low-high')" aria-label="Низька ймовірність, високі наслідки — середній ризик"><strong>🟡 Середній</strong><span>Додаткові заходи</span></button>
 </div>
+</div>
+<p class="matrix-mobile-hint">👉 Гортай матрицю вправо, щоб побачити всі колонки</p>
 <div class="matrix-legend">
 <span><i class="legend-dot" style="background:#16a34a;"></i> Низький ризик</span>
 <span><i class="legend-dot" style="background:#f59e0b;"></i> Середній ризик</span>
@@ -621,16 +641,20 @@ section.card > div[style*="grid-template-columns"] { display: flex !important; f
 </div>
 </section>
 
-<!-- ✅ ВИПРАВЛЕНО s3Task1: додано selectSingle(this) -->
+<!-- ✅ ВИПРАВЛЕНО s3Task1: selectSingleOption + кнопки -->
 <section class="card hidden" id="s3Task1">
 <h2>📝 Завдання 1. Формула ризику</h2>
 <div class="feedback feedback-warning mb-24"><strong>📌 Питання:</strong> Як визначають рівень ризику?</div>
 <div class="task-options" id="s3Task1Options">
-<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingle(this); checkSingleTask('#s3Task1Options','s3Task1Feedback','step3_task1','Ризик = Ймовірність × Наслідки.')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">R = P × S</div></div></div>
-<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s3Task1Options','s3Task1Feedback','step3_task1','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">R = P + S</div><div class="option-explanation">❌ У формулі ризику показники перемножуються.</div></div></div>
-<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s3Task1Options','s3Task1Feedback','step3_task1','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">R = P − S</div><div class="option-explanation">❌ Наслідки не віднімаються — вони множаться на ймовірність.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">R = P × S</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">R = P + S</div><div class="option-explanation">❌ У формулі ризику показники перемножуються.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">R = P − S</div><div class="option-explanation">❌ Наслідки не віднімаються — вони множаться на ймовірність.</div></div></div>
 </div>
 <div id="s3Task1Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="check-btns">
+<button class="btn btn-primary" onclick="checkSingleTask('#s3Task1Options','s3Task1Feedback','step3_task1','Ризик = Ймовірність × Наслідки.')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retrySingle('#s3Task1Options','s3Task1Feedback','step3_task1')">🔄 Спробувати ще раз</button>
+</div>
 <div class="navigation">
 <button class="btn btn-secondary" onclick="showS3('s3Theory')">← Назад</button>
 <button class="btn btn-success" onclick="showS3('s3Task2')">Далі: Завдання 2 →</button>
@@ -743,17 +767,21 @@ section.card > div[style*="grid-template-columns"] { display: flex !important; f
 </div>
 </section>
 
-<!-- ✅ ВИПРАВЛЕНО s3Task4: додано selectSingle(this) -->
+<!-- ✅ ВИПРАВЛЕНО s3Task4: selectSingleOption + кнопки -->
 <section class="card hidden" id="s3Task4">
 <h2>📝 Завдання 4. Одна небезпека — різний ризик</h2>
 <div class="feedback feedback-warning mb-24"><strong>📌 Ситуація:</strong> Відкритий вогонь: свічка на столі, мангал, вогнище в лісі, мала дитина, що грається сірниками в ліжку.</div>
 <p class="mb-16"><strong>Чому одна й та сама небезпека має різний рівень ризику?</strong></p>
 <div class="task-options" id="s3Task4Options">
-<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingle(this); checkSingleTask('#s3Task4Options','s3Task4Feedback','step3_task4','Ризик залежить від умов середовища та поведінки людини — тому одна небезпека дає різні рівні ризику.')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🌡️ Бо рівень ризику залежить від умов, середовища та поведінки людини</div></div></div>
-<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s3Task4Options','s3Task4Feedback','step3_task4','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🧊 Бо небезпека завжди означає один і той самий ризик</div><div class="option-explanation">❌ Умови змінюють імовірність і тяжкість наслідків.</div></div></div>
-<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s3Task4Options','s3Task4Feedback','step3_task4','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🕐 Бо ризик залежить лише від пори дня</div><div class="option-explanation">❌ Пори дня замало — враховуються всі умови та поведінка.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🌡️ Бо рівень ризику залежить від умов, середовища та поведінки людини</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🧊 Бо небезпека завжди означає один і той самий ризик</div><div class="option-explanation">❌ Умови змінюють імовірність і тяжкість наслідків.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🕐 Бо ризик залежить лише від пори дня</div><div class="option-explanation">❌ Пори дня замало — враховуються всі умови та поведінка.</div></div></div>
 </div>
 <div id="s3Task4Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="check-btns">
+<button class="btn btn-primary" onclick="checkSingleTask('#s3Task4Options','s3Task4Feedback','step3_task4','Ризик залежить від умов середовища та поведінки людини — тому одна небезпека дає різні рівні ризику.')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retrySingle('#s3Task4Options','s3Task4Feedback','step3_task4')">🔄 Спробувати ще раз</button>
+</div>
 <div class="navigation">
 <button class="btn btn-secondary" onclick="showS3('s3Task3')">← Назад</button>
 <button class="btn btn-success" onclick="goToStep(4)">Далі: Крок 4 →</button>
@@ -815,7 +843,7 @@ section.card > div[style*="grid-template-columns"] { display: flex !important; f
 </div>
 </section>
 
-<!-- ✅ АДАПТОВАНО s4Task2: додано situation-box та оновлено картки -->
+<!-- ✅ АДАПТОВАНО s4Task2: situation-box + оновлені картки -->
 <section class="card hidden" id="s4Task2">
 <h2>📝 Завдання 2. Впорядкуй ланцюг небезпек</h2>
 <div class="situation-box"><strong>📖 Ситуація:</strong> У соцмережах зʼявилося фейкове повідомлення про нібито закриття всіх продуктових магазинів у місті. Люди почали діяти під впливом паніки. <strong>Впорядкуй ланцюг подій</strong>, щоб побачити, як одна неправдива новина перетворюється на реальну небезпеку.</div>
@@ -849,16 +877,20 @@ section.card > div[style*="grid-template-columns"] { display: flex !important; f
 </div>
 </section>
 
-<!-- ✅ ВИПРАВЛЕНО s4Task3: додано selectSingle(this) -->
+<!-- ✅ ВИПРАВЛЕНО s4Task3: selectSingleOption + кнопки -->
 <section class="card hidden" id="s4Task3">
 <h2>📝 Завдання 3. Який розвиток найскладніший для виявлення?</h2>
 <div class="feedback feedback-warning mb-24"><strong>📌 Питання:</strong> Який із варіантів розвитку небезпеки найскладніше виявити вчасно?</div>
 <div class="task-options" id="s4Task3Options">
-<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingle(this); checkSingleTask('#s4Task3Options','s4Task3Feedback','step4_task3','Поступовий розвиток помічають не одразу — небезпека накопичується з часом.')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🐢 Поступовий — небезпеку не відразу помічають, вона накопичується</div></div></div>
-<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s4Task3Options','s4Task3Feedback','step4_task3','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">⚡ Раптовий — усе стається дуже швидко</div><div class="option-explanation">❌ Раптову подію добре помітно — складність у швидкості реакції, а не у виявленні.</div></div></div>
-<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s4Task3Options','s4Task3Feedback','step4_task3','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🎛️ Керований — ситуацію можна зупинити</div><div class="option-explanation">❌ Керована ситуація якраз найпомітніша й підконтрольна.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🐢 Поступовий — небезпеку не відразу помічають, вона накопичується</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">⚡ Раптовий — усе стається дуже швидко</div><div class="option-explanation">❌ Раптову подію добре помітно — складність у швидкості реакції, а не у виявленні.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🎛️ Керований — ситуацію можна зупинити</div><div class="option-explanation">❌ Керована ситуація якраз найпомітніша й підконтрольна.</div></div></div>
 </div>
 <div id="s4Task3Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="check-btns">
+<button class="btn btn-primary" onclick="checkSingleTask('#s4Task3Options','s4Task3Feedback','step4_task3','Поступовий розвиток помічають не одразу — небезпека накопичується з часом.')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retrySingle('#s4Task3Options','s4Task3Feedback','step4_task3')">🔄 Спробувати ще раз</button>
+</div>
 <div class="navigation">
 <button class="btn btn-secondary" onclick="showS4('s4Task2')">← Назад</button>
 <button class="btn btn-success" onclick="showS4('s4Task4')">Далі: Завдання 4 →</button>
@@ -1170,12 +1202,20 @@ section.card > div[style*="grid-template-columns"] { display: flex !important; f
 // ============ КЛАВІАТУРНА АКТИВНІСТЬ ============
 function kbActivate(event, element) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); element.click(); } }
 
-// ============ 🆕 НОВА ФУНКЦІЯ: selectSingle ============
-function selectSingle(el) {
-if (el.classList.contains('disabled')) return;
-const container = el.closest('.task-options');
-container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
-el.classList.add('selected');
+// ============ 🆕 ВИБІР SINGLE-ОПЦІЇ (БЕЗ АВТОПЕРЕВІРКИ) ============
+function selectSingleOption(el) {
+  if (el.classList.contains('disabled')) return;
+  const container = el.closest('.task-options');
+  container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ============ 🆕 ПОВТОР SINGLE-ЗАВДАННЯ ============
+function retrySingle(optsSel, fbId, taskId) {
+  if (stepIsDone(taskId)) { showToast('✅ Це завдання вже зараховано!'); return; }
+  document.querySelectorAll(optsSel + ' .option').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect', 'disabled'));
+  document.getElementById(fbId).style.display = 'none';
+  showToast('🔄 Спробуй ще раз');
 }
 
 // ============ УНІВЕРСАЛЬНИЙ DRAG & DROP ============
@@ -1853,8 +1893,9 @@ document.addEventListener('DOMContentLoaded', function() {
 loadProgress();
 goToMainPage();
 console.log('🚀 Тренажер §2 (фінальна версія з усіма виправленнями) завантажено');
-console.log('✅ Виправлено: s3Task1, s1Task1, s3Task4, s4Task3 (selectSingle)');
-console.log('✅ Адаптовано: s4Task2 (situation-box + нові картки)');
+console.log('✅ Виправлено: single-завдання (selectSingleOption + кнопки Перевірити/Спробувати)');
+console.log('✅ Адаптовано: s4Task2 (situation-box + оновлені картки)');
+console.log('✅ Матриця ризику: горизонтальний скрол на мобільних');
 });
 </script>
 </body>
