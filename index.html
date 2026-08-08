@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎯 Тренажер «Навігатор ризиків» — § 2. Ризик: оцінювання і прийняття рішень</title>
+<style>
+:root {
+--primary: #1e3a8a; --primary-dark: #1e2a5e; --primary-light: #3b5ccc;
+--accent: #2563eb; --success: #16a34a; --danger: #dc2626; --warning: #f59e0b;
+--bg: #f1f5f9; --card: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0;
+--theory-blue: #dbeafe; --theory-green: #dcfce7; --theory-purple: #f3e8ff;
+--theory-orange: #ffedd5; --theory-yellow: #fef3c7; --theory-red: #fee2e2;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+.top-progress-bar { position: fixed; top: 0; left: 0; right: 0; height: 4px; background: var(--border); z-index: 1001; }
+.top-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); width: 0%; transition: width 0.5s ease; }
+.progress-widget { position: fixed; top: 80px; right: 20px; background: white; padding: 10px 12px; border-radius: 10px; box-shadow: 0 2px 10px rgba(30, 58, 138, 0.12); z-index: 1000; min-width: 150px; display: block; }
+.progress-widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+.progress-widget-title { font-weight: 700; color: var(--primary); font-size: 12px; }
+.progress-widget-percentage { font-size: 18px; font-weight: 700; color: var(--accent); }
+.progress-widget-mini-map { display: flex; gap: 4px; margin-top: 8px; }
+.mini-step { width: 18px; height: 18px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; color: var(--text-muted); }
+.mini-step.current { background: var(--warning); color: white; animation: pulse 1.5s infinite; }
+.mini-step.completed { background: var(--success); color: white; }
+.toast-container { position: fixed; top: 100px; right: 20px; z-index: 1002; display: flex; flex-direction: column; gap: 8px; max-width: calc(100vw - 40px); }
+.toast { background: white; padding: 16px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(30, 58, 138, 0.2); display: flex; align-items: center; gap: 12px; animation: toastSlideIn 0.4s ease; border-left: 4px solid var(--success); min-width: 280px; max-width: 360px; }
+.toast.hiding { animation: toastSlideOut 0.4s ease forwards; }
+@keyframes toastSlideIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastSlideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100px); } }
+.toast-icon { font-size: 24px; flex-shrink: 0; }
+.toast-message { font-weight: 600; color: var(--text); font-size: 14px; }
+.header { background: linear-gradient(135deg, #1e2a5e 0%, #1e3a8a 50%, #2563eb 100%); color: white; padding: 24px 32px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 16px rgba(30, 58, 138, 0.15); margin-top: 4px; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.header h1 { font-size: 22px; font-weight: 700; flex: 1; min-width: 200px; }
+.header-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: none; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; white-space: nowrap; font-family: inherit; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: #1d4ed8; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); transform: translateY(-2px); }
+.btn-secondary { background: white; color: var(--accent); border: 2px solid var(--accent); }
+.btn-secondary:hover { background: #eff6ff; }
+.btn-warning { background: var(--warning); color: white; }
+.btn-warning:hover { background: #d97706; }
+.btn-success { background: var(--success); color: white; }
+.btn:focus { outline: 3px solid #93c5fd; outline-offset: 2px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+.hero-unified { background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(30, 58, 138, 0.08); overflow: hidden; display: grid; grid-template-columns: 1.3fr 0.7fr; align-items: stretch; }
+.hero-illustration { background: white; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; }
+.hero-illustration img, .hero-illustration svg { max-width: 100%; height: auto; max-height: 500px; object-fit: contain; border-radius: 16px; }
+.hero-illustration-title { color: var(--primary); font-size: 20px; font-weight: 700; margin-bottom: 16px; padding-bottom: 5px; border-bottom: 2px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.hero-navigation { padding: 20px 24px; display: flex; flex-direction: column; justify-content: center; border-left: 1px solid #e2e8f0; }
+.hero-navigation h2 { color: var(--primary); font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.step-navigation { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.step-nav-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; border: 2px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.step-nav-item:hover { border-color: var(--accent); background: #eff6ff; transform: translateX(4px); }
+.step-nav-item.active { border-color: var(--warning); background: #fef3c7; }
+.step-nav-item.completed { border-color: var(--success); background: #dcfce7; }
+.step-nav-number { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 11px; }
+.step-nav-item.active .step-nav-number { background: var(--warning); color: white; }
+.step-nav-item.completed .step-nav-number { background: var(--success); color: white; }
+.step-nav-item.completed .step-nav-number::after { content: '✓'; font-size: 13px; }
+.step-nav-content { flex: 1; min-width: 0; }
+.step-nav-title { font-weight: 600; color: var(--text); font-size: 12px; margin-bottom: 2px; line-height: 1.3; }
+.step-nav-status { font-size: 10px; color: var(--text-muted); }
+.hero-navigation .btn-primary { font-size: 14px; padding: 10px 16px; margin-top: 12px; }
+.info-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+.card { background: var(--card); border-radius: 16px; padding: 28px; box-shadow: 0 4px 16px rgba(30, 58, 138, 0.08); margin-bottom: 24px; transition: box-shadow .2s ease, transform .2s ease; }
+.card:hover { box-shadow: 0 8px 24px rgba(30, 58, 138, 0.14); }
+.card h2 { font-size: 22px; margin-bottom: 16px; color: var(--primary); }
+.card h3 { font-size: 18px; margin-bottom: 12px; color: var(--primary-dark); }
+.feature-list { list-style: none; padding: 0; }
+.feature-list li { padding: 10px 0 10px 32px; position: relative; border-bottom: 1px solid var(--border); font-size: 15px; }
+.feature-list li:last-child { border-bottom: none; }
+.feature-list li::before { content: attr(data-icon); position: absolute; left: 0; font-size: 18px; top: 10px; }
+.tip-card { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 16px; text-align: center; margin-top: 24px; font-size: 15px; }
+.step-header { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(30, 58, 138, 0.08); }
+.step-header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.step-title { font-size: 24px; color: var(--primary); font-weight: 700; }
+.step-badge { background: var(--warning); color: white; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; }
+.progress-dots { display: flex; gap: 8px; align-items: center; }
+.progress-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
+.progress-dot.active { background: var(--accent); transform: scale(1.2); }
+.progress-dot.completed { background: var(--success); }
+.theory-compact { background: linear-gradient(135deg, var(--theory-blue) 0%, #bfdbfe 100%); border: 2px solid #93c5fd; border-radius: 14px; padding: 20px; margin: 16px 0; }
+.theory-compact h4 { color: var(--primary); font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.theory-compact p { font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
+.theory-compact ul { list-style: none; padding: 0; }
+.theory-compact ul li { padding: 6px 0 6px 24px; position: relative; font-size: 14px; }
+.theory-compact ul li::before { content: attr(data-icon); position: absolute; left: 0; font-size: 16px; top: 6px; }
+.highlight-box { background: white; border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; margin: 12px 0; font-size: 14px; }
+.highlight-box strong { color: var(--primary); }
+.key-point { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #fbbf24; border-radius: 12px; padding: 16px; margin: 16px 0; text-align: center; font-weight: 600; color: #78350f; }
+.key-point::before { content: '💡 '; font-size: 20px; }
+.image-container { position: relative; text-align: center; margin: 24px 0; border-radius: 12px; overflow: hidden; }
+.image-container svg, .image-container img { width: 100%; max-width: 600px; height: auto; display: block; border-radius: 10px; margin: 0 auto; }
+.category-block { background: var(--bg); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.category-title { font-weight: 700; font-size: 16px; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.category-options { display: grid; gap: 8px; }
+.category-option { padding: 12px 16px; background: white; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+.category-option:hover { border-color: var(--accent); background: #eff6ff; }
+.category-option.selected { border-color: var(--warning); background: #fef3c7; }
+.category-option.correct { border-color: var(--success); background: #dcfce7; }
+.category-option.incorrect { border-color: var(--danger); background: #fee2e2; }
+.drag-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0; }
+.drag-source, .drag-target { background: var(--bg); border-radius: 12px; padding: 20px; }
+.drag-source h4, .drag-target h4 { font-size: 16px; color: var(--primary); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+.drag-item { background: white; border: 2px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; cursor: grab; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 500; line-height: 1.4; word-wrap: break-word; }
+.drag-item:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15); transform: translateY(-2px); }
+.drag-item:active { cursor: grabbing; }
+.drag-item.dragging { opacity: 0.5; transform: rotate(2deg); }
+.drag-item-step { width: 28px; height: 28px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.drop-zone { background: white; border: 2px dashed var(--border); border-radius: 10px; padding: 10px; margin-bottom: 8px; min-height: 48px; display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; transition: all 0.2s ease; }
+.drop-zone.drag-over { border-color: var(--accent); background: #eff6ff; border-style: solid; }
+.drop-zone.filled { border-style: solid; border-color: var(--accent); background: #eff6ff; }
+.drop-zone.correct { border-color: var(--success); background: #dcfce7; }
+.drop-zone.incorrect { border-color: var(--danger); background: #fee2e2; }
+.drop-zone-number { width: 28px; height: 28px; background: var(--border); color: var(--text-muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+.drop-zone.filled .drop-zone-number { background: var(--accent); color: white; }
+.drop-zone.correct .drop-zone-number { background: var(--success); }
+.drop-zone.incorrect .drop-zone-number { background: var(--danger); }
+.drop-zone-text { flex: 1; font-size: 14px; color: var(--text-muted); font-weight: 500; line-height: 1.5; }
+.task-options { display: grid; gap: 12px; margin: 20px 0; }
+.option { padding: 16px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px; }
+.option:hover:not(.disabled) { border-color: var(--accent); background: #eff6ff; }
+.option:focus { outline: 3px solid #93c5fd; outline-offset: 2px; }
+.option.selected { border-color: var(--accent); background: #eff6ff; }
+.option.correct { border-color: var(--success); background: #dcfce7; }
+.option.incorrect { border-color: var(--danger); background: #fee2e2; }
+.option.disabled { cursor: default; opacity: 0.8; }
+.option-radio, .option-checkbox { width: 24px; height: 24px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.option-radio { border-radius: 50%; }
+.option-checkbox { border-radius: 6px; }
+.option.selected .option-radio, .option.selected .option-checkbox { border-color: var(--accent); background: var(--accent); }
+.option.selected .option-radio::after, .option.selected .option-checkbox::after { content: '✓'; color: white; font-size: 14px; }
+.option.correct .option-radio, .option.correct .option-checkbox { border-color: var(--success); background: var(--success); }
+.option.correct .option-radio::after, .option.correct .option-checkbox::after { content: '✓'; color: white; font-size: 14px; }
+.option.incorrect .option-radio, .option.incorrect .option-checkbox { border-color: var(--danger); background: var(--danger); }
+.option.incorrect .option-radio::after, .option.incorrect .option-checkbox::after { content: '✕'; color: white; font-size: 14px; }
+.option-text { flex: 1; }
+.option-label { font-weight: 600; margin-bottom: 4px; }
+.option-explanation { font-size: 14px; color: var(--text-muted); display: none; margin-top: 8px; }
+.option.correct .option-explanation, .option.incorrect .option-explanation { display: block; }
+.feedback { padding: 16px; border-radius: 12px; margin: 16px 0; animation: fadeIn 0.3s ease; }
+.feedback-success { background: #dcfce7; border: 2px solid var(--success); color: #166534; }
+.feedback-error { background: #fee2e2; border: 2px solid var(--danger); color: #991b1b; }
+.feedback-warning { background: #fef3c7; border: 2px solid var(--warning); color: #92400e; }
+.navigation { display: flex; justify-content: space-between; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+.navigation .btn { flex: 1; min-width: 140px; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 20px; }
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal { background: white; border-radius: 16px; padding: 32px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 12px 40px rgba(30, 58, 138, 0.22); transform: scale(0.9); transition: transform 0.3s ease; }
+.modal-overlay.active .modal { transform: scale(1); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 12px; }
+.modal-header h2 { color: var(--primary); font-size: 22px; }
+.modal-close { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--text-muted); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+.modal-close:hover { background: var(--bg); color: var(--text); }
+.text-center { text-align: center; }
+.mb-16 { margin-bottom: 16px; } .mb-24 { margin-bottom: 24px; } .mt-24 { margin-top: 24px; }
+.hidden { display: none !important; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.step6-header { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; text-align: center; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3); }
+.step6-header h2 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+.step6-header p { font-size: 16px; opacity: 0.9; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px; }
+.stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.08); text-align: center; }
+.stat-value { font-size: 32px; font-weight: 800; color: var(--primary); }
+.stat-label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+.progress-circle-container { display: flex; justify-content: center; align-items: center; margin: 24px 0; position: relative; }
+.progress-circle { width: 180px; height: 180px; border-radius: 50%; background: conic-gradient(var(--success) 0%, var(--bg) 0%); display: flex; justify-content: center; align-items: center; transition: background 1s ease; box-shadow: 0 4px 16px rgba(30, 58, 138, 0.1); }
+.progress-circle-inner { width: 140px; height: 140px; background: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.circle-percentage { font-size: 40px; font-weight: 800; color: var(--primary); }
+.circle-label { font-size: 14px; color: var(--text-muted); }
+.level-badge { display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px solid #bfdbfe; padding: 16px 24px; border-radius: 12px; margin: 16px 0; }
+.level-badge-icon { font-size: 40px; }
+.level-badge-text { text-align: left; }
+.level-badge-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+.level-badge-desc { font-size: 14px; color: var(--text-muted); }
+.steps-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 24px 0; }
+.step-card { background: white; padding: 16px; border-radius: 12px; border: 2px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.step-card-icon { width: 40px; height: 40px; background: var(--bg); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.step-card-info { flex: 1; }
+.step-card-title { font-weight: 600; font-size: 15px; color: var(--text); }
+.step-card-status { font-size: 13px; color: var(--text-muted); }
+.step-card-status.completed { color: var(--success); font-weight: 600; }
+.star-rating { display: flex; gap: 8px; margin-top: 8px; }
+.star { font-size: 24px; cursor: pointer; color: var(--border); transition: color 0.2s ease; background: none; border: none; }
+.star:hover, .star.active { color: var(--warning); }
+.skill-eval { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.skill-eval:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.skill-title { font-weight: 600; font-size: 16px; color: var(--text); }
+.matching-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+.matching-column { background: var(--bg); border-radius: 12px; padding: 16px; }
+.matching-column h4 { font-size: 15px; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); text-align: center; }
+.matching-item { background: white; border: 2px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; position: relative; }
+.matching-item:hover:not(.correct):not(.incorrect) { border-color: var(--accent); background: #eff6ff; }
+.matching-item:focus { outline: 3px solid #93c5fd; outline-offset: 2px; }
+.matching-item.selected { border-color: var(--warning); background: #fef3c7; }
+.matching-item.correct { border-color: var(--success); background: #dcfce7; color: #166534; font-weight: 600; }
+.matching-item.incorrect { border-color: var(--danger); background: #fee2e2; color: #991b1b; }
+.matching-item.paired { font-weight: 700; box-shadow: 0 2px 8px rgba(30,58,138,.12); }
+.matching-item.pair-1 { border-color:#2563eb; background:#dbeafe; color:#1e3a8a; }
+.matching-item.pair-2 { border-color:#9333ea; background:#f3e8ff; color:#6b21a8; }
+.matching-item.pair-3 { border-color:#ea580c; background:#ffedd5; color:#9a3412; }
+.matching-item.pair-4 { border-color:#0d9488; background:#ccfbf1; color:#115e59; }
+.pair-num { position:absolute; top:-9px; right:-9px; width:20px; height:20px; border-radius:50%; color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.25); }
+.pair-1 .pair-num{background:#2563eb;} .pair-2 .pair-num{background:#9333ea;} .pair-3 .pair-num{background:#ea580c;} .pair-4 .pair-num{background:#0d9488;}
+.matrix-hint { font-size: 14px; color: var(--text-muted); margin: 8px 0 14px; }
+.risk-matrix { display: grid; grid-template-columns: 34px 92px repeat(3, 1fr); grid-template-rows: auto auto repeat(3, auto); gap: 10px; background: #f8fafc; border: 2px solid var(--border); border-radius: 14px; padding: 16px; margin: 20px 0; }
+.matrix-axis-top { grid-column: 3 / 6; grid-row: 1; text-align: center; font-weight: 800; color: var(--primary); font-size: 15px; letter-spacing: .5px; }
+.matrix-axis-left { grid-column: 1; grid-row: 3 / 6; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-weight: 800; color: var(--primary); font-size: 15px; letter-spacing: .5px; align-self: center; justify-self: center; }
+.matrix-corner { grid-column: 2; grid-row: 1 / 3; }
+.matrix-col-head { grid-row: 2; text-align: center; font-weight: 700; color: var(--text-muted); font-size: 13px; text-transform: uppercase; }
+.matrix-col-head span { display: block; font-weight: 500; font-size: 10px; text-transform: none; }
+.matrix-row-head { grid-column: 2; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-weight: 700; color: var(--text-muted); font-size: 13px; text-transform: uppercase; }
+.matrix-cell { min-height: 92px; border-radius: 12px; border: 2px solid; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px; font-size: 12.5px; line-height: 1.35; transition: transform .2s ease, box-shadow .2s ease; }
+.matrix-cell strong { font-size: 13px; }
+.matrix-cell:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30, 58, 138, .18); }
+.matrix-cell:focus { outline: 3px solid #93c5fd; outline-offset: 2px; }
+.matrix-cell:active { transform: scale(.98); }
+.lvl-low { background: #dcfce7; border-color: #16a34a; color: #166534; }
+.lvl-medium { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+.lvl-high { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+.matrix-legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 12px; font-size: 13px; color: var(--text-muted); }
+.matrix-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.matrix-modal-combo { font-weight: 700; color: var(--text); margin-bottom: 14px; }
+.matrix-modal-desc { background: var(--bg); border-left: 4px solid var(--accent); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 14px; }
+.matrix-modal-examples { background: var(--bg); border-radius: 12px; padding: 14px 16px; }
+.matrix-modal-examples h4 { color: var(--primary); font-size: 15px; margin-bottom: 10px; }
+.matrix-modal-examples ul { list-style: none; }
+.matrix-modal-examples li { padding: 6px 0 6px 26px; position: relative; font-size: 14px; }
+.matrix-modal-examples li::before { content: '✅'; position: absolute; left: 0; top: 6px; font-size: 14px; }
+.acc-item { border: 2px solid var(--border); border-radius: 12px; margin-bottom: 12px; background: #fff; overflow: visible; }
+.acc-header { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; background: var(--bg); border: none; cursor: pointer; font-weight: 700; font-size: 15px; color: var(--primary); text-align: left; min-height: 48px; border-radius: 12px; font-family: inherit; }
+.acc-header:hover { background: #eff6ff; }
+.acc-header:focus { outline: 3px solid #93c5fd; outline-offset: 2px; }
+.acc-arrow { transition: transform .3s; flex-shrink: 0; }
+.acc-item.open .acc-arrow { transform: rotate(180deg); }
+.acc-status { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: var(--border); color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+.acc-item.done { border-color: var(--success); }
+.acc-item.done .acc-status { background: var(--success); color: #fff; }
+.acc-item.done .acc-header { background: #dcfce7; }
+.acc-body { display: none; padding: 16px; }
+.acc-item.open .acc-body { display: block; animation: fadeIn .3s ease; }
+.mini-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 16px 0; }
+.mini-card { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 4px 16px rgba(30,58,138,.08); border-top: 4px solid var(--accent); transition: transform .2s ease, box-shadow .2s ease; }
+.mini-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(30,58,138,.14); }
+.mini-card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px; }
+.mini-card h5 { font-size: 15px; color: var(--primary); margin-bottom: 6px; }
+.mini-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px; }
+.mini-card ul { list-style: none; }
+.mini-card ul li { padding: 3px 0 3px 18px; position: relative; font-size: 13px; color: var(--text-muted); line-height: 1.45; }
+.mini-card ul li::before { content: '•'; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
+.mini-card .chain { background: var(--bg); border-radius: 8px; padding: 6px 8px; font-size: 12px; color: var(--text); margin-top: 6px; }
+.mc-blue { border-top-color: #2563eb; } .mc-green { border-top-color: #16a34a; }
+.mc-purple { border-top-color: #9333ea; } .mc-orange { border-top-color: #ea580c; }
+.mc-red { border-top-color: #dc2626; } .mc-yellow { border-top-color: #f59e0b; }
+.section-subtitle { font-size: 17px; color: var(--primary-dark); margin: 20px 0 10px; font-weight: 700; }
+.situation-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px solid #93c5fd; border-radius: 12px; padding: 16px; margin: 16px 0; font-size: 15px; }
+/* ===== 🆕 КАРТКИ РИЗИКІВ (Завдання 3, Крок 3) ===== */
+.risk-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:20px 0;}
+.risk-card{background:#fff;border:2px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:all .25s;}
+.risk-card img{width:100%;height:140px;object-fit:cover;display:block;}
+.risk-card-body{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1;}
+.risk-card-body p{font-size:13.5px;line-height:1.5;}
+.risk-levels{display:flex;gap:6px;flex-wrap:wrap;}
+.risk-lvl{flex:1;min-width:70px;padding:8px 6px;border-radius:8px;border:2px solid var(--border);background:var(--bg);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;}
+.risk-lvl:hover{border-color:var(--accent);background:#eff6ff;}
+.risk-lvl.right{border-color:var(--success);background:#dcfce7;color:#166534;}
+.risk-lvl.wrong{border-color:var(--danger);background:#fee2e2;color:#991b1b;animation:shakeX .4s;}
+.risk-card.solved{border-color:var(--success);box-shadow:0 4px 14px rgba(22,163,74,.15);}
+.risk-card-feedback{font-size:12.5px;border-radius:8px;padding:10px 12px;line-height:1.45;}
+.risk-card-feedback.ok{background:#dcfce7;color:#166534;border-left:4px solid var(--success);}
+.risk-card-feedback.err{background:#fee2e2;color:#991b1b;border-left:4px solid var(--danger);}
+.risk-cards-progress{font-weight:700;color:var(--primary);text-align:center;margin:10px 0;}
+@keyframes shakeX{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (max-width: 968px) {
+.hero-unified { grid-template-columns: 1fr; }
+.hero-illustration { border-right: none; border-bottom: 2px dashed var(--accent); min-height: 300px; }
+.info-blocks { grid-template-columns: 1fr; }
+.progress-widget { display: none !important; }
+.drag-container { grid-template-columns: 1fr; }
+.matching-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+.header { padding: 16px; border-radius: 0 0 12px 12px; }
+.header h1 { font-size: 16px; }
+.header-buttons .btn { padding: 10px 12px; font-size: 14px; }
+.container { padding: 20px 16px; }
+.card { padding: 20px; }
+.hero-illustration { padding: 24px 16px; min-height: 250px; }
+.hero-navigation { padding: 20px 16px; }
+.navigation .btn { width: 100%; min-width: 100%; }
+section.card > div[style*="grid-template-columns"] { display: flex !important; flex-direction: column !important; gap: 16px !important; }
+.task-options, .category-options { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 640px) {
+.risk-matrix { grid-template-columns: 24px 64px repeat(3, 1fr); gap: 6px; padding: 10px; }
+.matrix-cell { min-height: 70px; font-size: 10.5px; }
+.matrix-col-head span { display: none; }
+.matrix-row-head, .matrix-col-head { font-size: 10px; }
+}
+@media (max-width: 480px) {
+.step-title { font-size: 18px; }
+.card h2 { font-size: 18px; }
+.option { padding: 12px; font-size: 13px; }
+.category-option { padding: 10px 12px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+<div class="top-progress-bar"><div class="top-progress-fill" id="topProgressBar"></div></div>
+<div class="progress-widget" id="progressWidget">
+<div class="progress-widget-header">
+<span class="progress-widget-title">📊 Прогрес</span>
+<span class="progress-widget-percentage" id="widgetPercentage">0%</span>
+</div>
+<div style="font-size: 10px; color: var(--text-muted); margin-bottom: 6px;">Виконано: <strong id="widgetTasks">0/16</strong></div>
+<div class="progress-widget-mini-map" id="widgetMiniMap"></div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<header class="header">
+<div class="header-content">
+<h1 id="headerTitle">🛡️ Тренажер «Навігатор ризиків»</h1>
+<div class="header-buttons">
+<button class="btn btn-secondary" onclick="goToMainPage()">← До змісту</button>
+<button class="btn btn-secondary" onclick="showProgressModal()">📊 Прогрес</button>
+<button class="btn btn-secondary" onclick="showHelpModal()">❓ Як працювати?</button>
+</div>
+</div>
+</header>
+
+<!-- ==================== ГОЛОВНА ==================== -->
+<main class="container" id="mainPage">
+<div class="hero-unified">
+<div class="hero-illustration">
+<div class="hero-illustration-title">📖 § 2. Ризик: оцінювання і прийняття рішень</div>
+<img src="https://res.cloudinary.com/dmydvhkzr/image/upload/v1786186860/4ba23806-08cd-467f-91cf-7fbdf1a3448a_wdjpws.png" alt="Роздоріжжя рішень: безпечне та ризиковане">
+</div>
+<div class="hero-navigation">
+<h2>🧭 Навігація по кроках</h2>
+<div class="step-navigation" id="stepNavigation"></div>
+<button class="btn btn-primary mt-24" onclick="goToStep(1)" style="width: 100%; font-size: 17px; padding: 14px;">🚀 Розпочати параграф →</button>
+</div>
+</div>
+<div class="info-blocks">
+<div class="card" style="margin: 0;">
+<h3>🔍 У цьому параграфі ти:</h3>
+<ul class="feature-list">
+<li data-icon="⚖️">навчишся оцінювати ризики за ймовірністю та наслідками</li>
+<li data-icon="🧩">розпізнаватимеш види ризиків за походженням, доцільністю та впливом</li>
+<li data-icon="🔄">побачиш варіанти розвитку небезпечних ситуацій</li>
+<li data-icon="🧠">опануєш алгоритм рішень в умовах невизначеності</li>
+<li data-icon="🏆">отримаєш відзнаку за проходження</li>
+</ul>
+</div>
+<div class="card" style="margin: 0;">
+<h3>📋 Що ти робитимеш?</h3>
+<ul class="feature-list">
+<li data-icon="👆">Аналізувати життєві ситуації</li>
+<li data-icon="🔍">Визначати рівень ризику (низький/середній/високий)</li>
+<li data-icon="🔗">З'єднувати поняття та приклади</li>
+<li data-icon="🧩">Впорядковувати алгоритми та ланцюжки подій</li>
+<li data-icon="⭐">Оцінювати власні вміння</li>
+</ul>
+</div>
+</div>
+<div class="tip-card">💡 <strong>Порада:</strong> Ризик = Ймовірність × Наслідки. Усвідомлені рішення та запобіжні дії знижують рівень ризику!</div>
+</main>
+
+<!-- ==================== КРОК 1 ==================== -->
+<main class="container hidden" id="step1Page">
+<div class="step-header"><h2 class="step-title">🎯 Крок 1. Стартове завдання</h2></div>
+<section class="card">
+<div class="situation-box" style="margin-top:0;"><strong>📱 Ситуація:</strong> Андрій у торговому центрі підключився до відкритої Wi-Fi мережі «Free_IMall_WiFi_Free_», щоб перевірити банківський рахунок.</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+<div class="image-container" style="margin:0;">
+<img src="https://res.cloudinary.com/dmydvhkzr/image/upload/v1783096968/step1_task2_decision_afyqrb.png" alt="Телефон із попередженням про відкриту Wi-Fi мережу" style="width:100%;border-radius:10px;">
+</div>
+<div>
+<p class="mb-16"><strong>Чому таке рішення може бути небезпечним?</strong></p>
+<div class="task-options" id="s1Task1Options">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingle(this); checkSingleTask('#s1Task1Options','s1Task1Feedback','step1_task1','Відкриті мережі не шифрують трафік — шахраї можуть перехопити паролі та банківські дані.')" onkeydown="kbActivate(event,this)">
+<div class="option-radio"></div>
+<div class="option-text"><div class="option-label">🕵️ До відкритої мережі можуть підключитися шахраї та перехопити особисті й банківські дані</div></div>
+</div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s1Task1Options','s1Task1Feedback','step1_task1','')" onkeydown="kbActivate(event,this)">
+<div class="option-radio"></div>
+<div class="option-text"><div class="option-label">✅ Це безпечно: мережі торгових центрів завжди надійно захищені</div><div class="option-explanation">❌ Відкрита мережа не має шифрування — дані передаються «відкрито».</div></div>
+</div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s1Task1Options','s1Task1Feedback','step1_task1','')" onkeydown="kbActivate(event,this)">
+<div class="option-radio"></div>
+<div class="option-text"><div class="option-label">🐢 Єдиний ризик — повільна швидкість інтернету</div><div class="option-explanation">❌ Головний ризик — інформаційний: витік особистих даних.</div></div>
+</div>
+</div>
+<div id="s1Task1Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+</div>
+</div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="goToMainPage()">← До змісту</button>
+<button class="btn btn-success" onclick="goToStep(2)">Далі: Крок 2 →</button>
+</div>
+</section>
+</main>
+
+<!-- ==================== КРОК 2 ==================== -->
+<main class="container hidden" id="step2Page">
+<div class="step-header">
+<div class="step-header-top"><h2 class="step-title">🧩 Крок 2. Види ризиків</h2><span class="step-badge">4 завдання</span></div>
+<div class="progress-dots"><div class="progress-dot completed"></div><div class="progress-dot active"></div><div class="progress-dot"></div><div class="progress-dot"></div><div class="progress-dot"></div><div class="progress-dot"></div></div>
+</div>
+<section class="card" id="s2Theory">
+<h2>📖 Теоретичний блок</h2>
+<div class="theory-compact">
+<h4>⚖️ Що таке ризик?</h4>
+<p><strong>Ризик — це ймовірність того, що небезпечна подія може відбутися</strong> та спричинити шкоду людям, ресурсам, майну, процесам або репутації.</p>
+<p>Безпека залежить не лише від відсутності небезпеки, а й від уміння передбачати можливі ризики.</p>
+</div>
+<h3 class="section-subtitle">🧬 Класифікація ризиків</h3>
+<div class="mini-cards">
+<div class="mini-card mc-blue"><div class="mini-card-icon" style="background:#dbeafe;">🌍</div><h5>За походженням</h5><ul><li>Природні (гроза, повінь, спека)</li><li>Техногенні (пожежа, аварія)</li><li>Соціальні (булінг, шахрайство)</li><li>Інформаційні (витік даних, фейки)</li></ul></div>
+<div class="mini-card mc-green"><div class="mini-card-icon" style="background:#dcfce7;">🎯</div><h5>За доцільністю</h5><ul><li><strong>Виправдані</strong> — усвідомлені наслідки, оцінка ситуації</li><li><strong>Невиправдані</strong> — ігнорування небезпеки, необдумані дії</li></ul></div>
+<div class="mini-card mc-purple"><div class="mini-card-icon" style="background:#f3e8ff;">🎛️</div><h5>За можливістю впливу</h5><ul><li><strong>Керовані</strong> — можна впливати, змінюючи поведінку</li><li><strong>Некеровані</strong> — не можна повністю контролювати</li></ul></div>
+</div>
+<h3 class="section-subtitle">📈 Від чого залежить рівень ризику</h3>
+<div class="mini-cards">
+<div class="mini-card mc-yellow"><div class="mini-card-icon" style="background:#fef3c7;">🚶</div><h5>Поведінка людини</h5><p>Як діє людина, її уважність, дотримання правил</p></div>
+<div class="mini-card mc-blue"><div class="mini-card-icon" style="background:#dbeafe;">🌦️</div><h5>Умови середовища</h5><p>Погода, освітлення, наявність небезпечних факторів</p></div>
+<div class="mini-card mc-orange"><div class="mini-card-icon" style="background:#ffedd5;">🔧</div><h5>Технічний стан</h5><p>Справність обладнання, транспорту, інфраструктури</p></div>
+<div class="mini-card mc-green"><div class="mini-card-icon" style="background:#dcfce7;">📚</div><h5>Наявна інформація</h5><p>Достовірність і повнота інформації, знання про небезпеки</p></div>
+</div>
+<div class="key-point">Усвідомлення можливих наслідків і своєчасні запобіжні дії зменшують рівень ризику та підвищують безпеку.</div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="goToMainPage()">← До змісту</button>
+<button class="btn btn-primary" onclick="showS2('s2Task1')">Далі: Завдання 1 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s2Task1">
+<h2>📝 Завдання 1. З'єднай ризик із походженням</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Інструкція:</strong> Обери групу ризику, а потім — відповідний приклад. З'єднані пари підсвічуються кольором.</div>
+<div class="matching-grid" id="matchingGridS2T1">
+<div class="matching-column">
+<h4>🧬 Походження</h4>
+<div class="matching-item" tabindex="0" role="button" data-concept="1" onclick="selectMatchingConcept(this)" onkeydown="kbActivate(event,this)">🌩️ Природні</div>
+<div class="matching-item" tabindex="0" role="button" data-concept="2" onclick="selectMatchingConcept(this)" onkeydown="kbActivate(event,this)">🏭 Техногенні</div>
+<div class="matching-item" tabindex="0" role="button" data-concept="3" onclick="selectMatchingConcept(this)" onkeydown="kbActivate(event,this)">👥 Соціальні</div>
+<div class="matching-item" tabindex="0" role="button" data-concept="4" onclick="selectMatchingConcept(this)" onkeydown="kbActivate(event,this)">💻 Інформаційні</div>
+</div>
+<div class="matching-column">
+<h4>🎯 Приклади</h4>
+<div class="matching-item" tabindex="0" role="button" data-condition="3" onclick="selectMatchingCondition(this)" onkeydown="kbActivate(event,this)">Булінг, шахрайство</div>
+<div class="matching-item" tabindex="0" role="button" data-condition="1" onclick="selectMatchingCondition(this)" onkeydown="kbActivate(event,this)">Гроза, повінь, спека</div>
+<div class="matching-item" tabindex="0" role="button" data-condition="4" onclick="selectMatchingCondition(this)" onkeydown="kbActivate(event,this)">Витік даних, фейки</div>
+<div class="matching-item" tabindex="0" role="button" data-condition="2" onclick="selectMatchingCondition(this)" onkeydown="kbActivate(event,this)">Пожежа, аварія</div>
+</div>
+</div>
+<div id="s2Task1Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS2('s2Theory')">← Назад</button>
+<button class="btn btn-primary" onclick="checkMatchingTask('matchingGridS2T1','s2Task1Feedback','step2_task1',4)">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryMatching('matchingGridS2T1','s2Task1Feedback','step2_task1')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="showS2('s2Task2')">Далі: Завдання 2 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s2Task2">
+<h2>📝 Завдання 2. Виправданий чи невиправданий?</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Інструкція:</strong> Оціни доцільність ризику в кожній ситуації.</div>
+<div class="category-block">
+<div class="category-title">🚦 Ситуація 1: Переходиш дорогу на зелене світло по переходу, переконавшись, що машини зупинилися</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">✅ Виправданий ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">❌ Невиправданий ризик</div>
+</div>
+</div>
+<div class="category-block">
+<div class="category-title">🛴 Ситуація 2: Їдеш на електросамокаті без шолома по мокрій дорозі, поспішаючи на зустріч</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">✅ Виправданий ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">❌ Невиправданий ризик</div>
+</div>
+</div>
+<div class="category-block">
+<div class="category-title">🚗 Ситуація 3: Не пристібаєш пасок безпеки, бо «їхати зовсім близько»</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">✅ Виправданий ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">❌ Невиправданий ризик</div>
+</div>
+</div>
+<div class="category-block">
+<div class="category-title">🧯 Ситуація 4: Рятувальник у спорядженні, оцінивши ситуацію, спускається в ущелину, щоб допомогти</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">✅ Виправданий ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">❌ Невиправданий ризик</div>
+</div>
+</div>
+<div id="s2Task2Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS2('s2Task1')">← Назад</button>
+<button class="btn btn-primary" onclick="checkCategoryTask('#s2Task2 .category-block','s2Task2Feedback','step2_task2')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryCategory('#s2Task2 .category-block','s2Task2Feedback','step2_task2')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="showS2('s2Task3')">Далі: Завдання 3 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s2Task3">
+<h2>📝 Завдання 3. Керований чи некерований?</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Інструкція:</strong> Визнач, чи можна вплинути на рівень ризику своєю поведінкою.</div>
+<div class="category-block">
+<div class="category-title">🚲 Ситуація 1: Їзда на велосипеді — можна одягнути шолом і дотримуватись правил</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🎛️ Керований ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🌪️ Некерований ризик</div>
+</div>
+</div>
+<div class="category-block">
+<div class="category-title">⛈️ Ситуація 2: Гроза та сильний вітер у твоєму регіоні</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🎛️ Керований ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🌪️ Некерований ризик</div>
+</div>
+</div>
+<div class="category-block">
+<div class="category-title">📱 Ситуація 3: Регулярне оновлення застосунків і паролей на телефоні</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🎛️ Керований ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🌪️ Некерований ризик</div>
+</div>
+</div>
+<div class="category-block">
+<div class="category-title">🌍 Ситуація 4: Землетрус у сейсмічно активній зоні</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🎛️ Керований ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🌪️ Некерований ризик</div>
+</div>
+</div>
+<div id="s2Task3Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS2('s2Task2')">← Назад</button>
+<button class="btn btn-primary" onclick="checkCategoryTask('#s2Task3 .category-block','s2Task3Feedback','step2_task3')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryCategory('#s2Task3 .category-block','s2Task3Feedback','step2_task3')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="showS2('s2Task4')">Далі: Завдання 4 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s2Task4">
+<h2>📝 Завдання 4. Що впливає на рівень ризику?</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Питання:</strong> Обери всі чинники, від яких залежить зростання або зменшення рівня ризику.</div>
+<div class="task-options" id="s2Task4Options">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🚶 Поведінка людини (уважність, дотримання правил)</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🌦️ Умови середовища (погода, освітлення)</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🔮 Нічого не залежить від людини — ризик визначений наперед</div><div class="option-explanation">❌ Поведінка людини суттєво змінює рівень ризику.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🔧 Технічний стан обладнання та транспорту</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">📚 Достовірність і повнота інформації про небезпеки</div></div></div>
+</div>
+<div id="s2Task4Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS2('s2Task3')">← Назад</button>
+<button class="btn btn-primary" onclick="checkMultiTask('#s2Task4Options','s2Task4Feedback','step2_task4','Рівень ризику залежить від поведінки, середовища, технічного стану та інформації.')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryMulti('#s2Task4Options','s2Task4Feedback','step2_task4')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="goToStep(3)">Далі: Крок 3 →</button>
+</div>
+</section>
+</main>
+
+<!-- ==================== КРОК 3 ==================== -->
+<main class="container hidden" id="step3Page">
+<div class="step-header">
+<div class="step-header-top"><h2 class="step-title">📊 Крок 3. Оцінка ризиків</h2><span class="step-badge">4 завдання</span></div>
+<div class="progress-dots"><div class="progress-dot completed"></div><div class="progress-dot completed"></div><div class="progress-dot active"></div><div class="progress-dot"></div><div class="progress-dot"></div><div class="progress-dot"></div></div>
+</div>
+<section class="card" id="s3Theory">
+<h2>📖 Теоретичний блок</h2>
+<div class="theory-compact">
+<h4>📉 Три рівні ризику</h4>
+<ul>
+<li data-icon="🟢"><strong>Низький:</strong> потрібні лише уважність і дотримання правил (контроль і спостереження)</li>
+<li data-icon="🟡"><strong>Середній:</strong> потрібні додаткові заходи для зменшення ризику</li>
+<li data-icon="🔴"><strong>Високий:</strong> потрібні негайні дії для запобігання небезпеці</li>
+</ul>
+</div>
+<div class="theory-compact" style="background: linear-gradient(135deg, var(--theory-yellow) 0%, #fde68a 100%); border-color: #fcd34d;">
+<h4>🧮 Формула ризику</h4>
+<div class="highlight-box"><strong>Ризик (R) = Ймовірність (P) × Наслідки (S)</strong>, де P — ймовірність події, S — серйозність наслідків.</div>
+<p>Чим вища ймовірність події та серйозніші її наслідки — тим вищий рівень ризику.</p>
+</div>
+<p class="matrix-hint">👆 Натисни на клітинку матриці, щоб побачити опис і приклади рівня ризику:</p>
+<div class="risk-matrix" role="group" aria-label="Матриця оцінки рівня ризику">
+<div class="matrix-axis-top">НАСЛІДКИ (S) →</div>
+<div class="matrix-axis-left">ЙМОВІРНІСТЬ (P) →</div>
+<div class="matrix-corner"></div>
+<div class="matrix-col-head" style="grid-column:3;">НИЗЬКІ<span>дрібні збитки, неприємності</span></div>
+<div class="matrix-col-head" style="grid-column:4;">СЕРЕДНІ<span>помірні травми, психологічний вплив</span></div>
+<div class="matrix-col-head" style="grid-column:5;">ВИСОКІ<span>серйозні травми, значні збитки</span></div>
+<div class="matrix-row-head" style="grid-row:3;">ВИСОКА</div>
+<button type="button" class="matrix-cell lvl-medium" style="grid-row:3;grid-column:3;" onclick="openMatrixCell('high-low')" aria-label="Висока ймовірність, низькі наслідки — середній ризик"><strong>🟡 Середній</strong><span>Перевтома</span></button>
+<button type="button" class="matrix-cell lvl-high" style="grid-row:3;grid-column:4;" onclick="openMatrixCell('high-medium')" aria-label="Висока ймовірність, середні наслідки — високий ризик"><strong>🔴 Високий</strong><span>Серйозна ДТП · Обстріл</span></button>
+<button type="button" class="matrix-cell lvl-high" style="grid-row:3;grid-column:5;" onclick="openMatrixCell('high-high')" aria-label="Висока ймовірність, високі наслідки — високий ризик"><strong>🔴 Високий</strong><span>Аварія на хім. підприємстві</span></button>
+<div class="matrix-row-head" style="grid-row:4;">СЕРЕДНЯ</div>
+<button type="button" class="matrix-cell lvl-low" style="grid-row:4;grid-column:3;" onclick="openMatrixCell('medium-low')" aria-label="Середня ймовірність, низькі наслідки — низький ризик"><strong>🟢 Низький</strong><span>Збій інтернету</span></button>
+<button type="button" class="matrix-cell lvl-medium" style="grid-row:4;grid-column:4;" onclick="openMatrixCell('medium-medium')" aria-label="Середня ймовірність, середні наслідки — середній ризик"><strong>🟡 Середній</strong><span>Втрата телефона · Кібербулінг</span></button>
+<button type="button" class="matrix-cell lvl-high" style="grid-row:4;grid-column:5;" onclick="openMatrixCell('medium-high')" aria-label="Середня ймовірність, високі наслідки — високий ризик"><strong>🔴 Високий</strong><span>Негайні дії</span></button>
+<div class="matrix-row-head" style="grid-row:5;">НИЗЬКА</div>
+<button type="button" class="matrix-cell lvl-low" style="grid-row:5;grid-column:3;" onclick="openMatrixCell('low-low')" aria-label="Низька ймовірність, низькі наслідки — низький ризик"><strong>🟢 Низький</strong><span>Забутий ключ</span></button>
+<button type="button" class="matrix-cell lvl-low" style="grid-row:5;grid-column:4;" onclick="openMatrixCell('low-medium')" aria-label="Низька ймовірність, середні наслідки — низький ризик"><strong>🟢 Низький</strong><span>Контроль і спостереження</span></button>
+<button type="button" class="matrix-cell lvl-medium" style="grid-row:5;grid-column:5;" onclick="openMatrixCell('low-high')" aria-label="Низька ймовірність, високі наслідки — середній ризик"><strong>🟡 Середній</strong><span>Додаткові заходи</span></button>
+</div>
+<div class="matrix-legend">
+<span><i class="legend-dot" style="background:#16a34a;"></i> Низький ризик</span>
+<span><i class="legend-dot" style="background:#f59e0b;"></i> Середній ризик</span>
+<span><i class="legend-dot" style="background:#dc2626;"></i> Високий ризик</span>
+</div>
+<div class="key-point">Рівень ризику може змінюватися залежно від обставин, умов середовища та поведінки людини.</div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="goToMainPage()">← До змісту</button>
+<button class="btn btn-primary" onclick="showS3('s3Task1')">Далі: Завдання 1 →</button>
+</div>
+</section>
+
+<!-- ✅ ВИПРАВЛЕНО s3Task1: додано selectSingle(this) -->
+<section class="card hidden" id="s3Task1">
+<h2>📝 Завдання 1. Формула ризику</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Питання:</strong> Як визначають рівень ризику?</div>
+<div class="task-options" id="s3Task1Options">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingle(this); checkSingleTask('#s3Task1Options','s3Task1Feedback','step3_task1','Ризик = Ймовірність × Наслідки.')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">R = P × S</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s3Task1Options','s3Task1Feedback','step3_task1','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">R = P + S</div><div class="option-explanation">❌ У формулі ризику показники перемножуються.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s3Task1Options','s3Task1Feedback','step3_task1','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">R = P − S</div><div class="option-explanation">❌ Наслідки не віднімаються — вони множаться на ймовірність.</div></div></div>
+</div>
+<div id="s3Task1Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS3('s3Theory')">← Назад</button>
+<button class="btn btn-success" onclick="showS3('s3Task2')">Далі: Завдання 2 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s3Task2">
+<h2>📝 Завдання 2. Визнач рівень ризику за матрицею</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Інструкція:</strong> Спираючись на матрицю, обери рівень ризику для кожної події.</div>
+<div class="category-block">
+<div class="category-title">🗝️ Подія 1: Забутий вдома ключ</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🟢 Низький ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🟡 Середній ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🔴 Високий ризик</div>
+</div>
+</div>
+<div class="category-block">
+<div class="category-title">💬 Подія 2: Кібербулінг у шкільному чаті</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🟢 Низький ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🟡 Середній ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🔴 Високий ризик</div>
+</div>
+</div>
+<div class="category-block">
+<div class="category-title">🚗 Подія 3: Серйозна ДТП</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🟢 Низький ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🟡 Середній ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🔴 Високий ризик</div>
+</div>
+</div>
+<div class="category-block">
+<div class="category-title">📵 Подія 4: Втрата телефона</div>
+<div class="category-options">
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🟢 Низький ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="true" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🟡 Середній ризик</div>
+<div class="category-option" tabindex="0" role="button" data-correct="false" onclick="selectCategoryOption(this)" onkeydown="kbActivate(event,this)">🔴 Високий ризик</div>
+</div>
+</div>
+<div id="s3Task2Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS3('s3Task1')">← Назад</button>
+<button class="btn btn-primary" onclick="checkCategoryTask('#s3Task2 .category-block','s3Task2Feedback','step3_task2')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryCategory('#s3Task2 .category-block','s3Task2Feedback','step3_task2')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="showS3('s3Task3')">Далі: Завдання 3 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s3Task3">
+<h2>📝 Завдання 3. Оціни ризик у ситуаціях</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Інструкція:</strong> Розглянь картку, оціни ймовірність і наслідки та натисни рівень ризику. Пояснення відкриється одразу.</div>
+<div class="risk-cards" id="riskCards3">
+<div class="risk-card" data-card="maxim" data-correct="high">
+<img src="https://res.cloudinary.com/dmydvhkzr/image/upload/v1782498756/scooter_rain_rx6oze.png" alt="Максим на самокаті у дощ">
+<div class="risk-card-body">
+<p>🛴 Максим їде на електросамокаті без шолома по мокрій дорозі, поспішаючи.</p>
+<div class="risk-levels">
+<button type="button" class="risk-lvl" data-val="low" onclick="pickRiskLevel(this)">🟢 Низький</button>
+<button type="button" class="risk-lvl" data-val="mid" onclick="pickRiskLevel(this)">🟡 Середній</button>
+<button type="button" class="risk-lvl" data-val="high" onclick="pickRiskLevel(this)">🔴 Високий</button>
+</div>
+<div class="risk-card-feedback" hidden></div>
+</div>
+</div>
+<div class="risk-card" data-card="olia" data-correct="high">
+<img src="https://res.cloudinary.com/dmydvhkzr/image/upload/v1782498734/online_shopping_fkvidh.png" alt="Оля: підозрілий інтернет-магазин">
+<div class="risk-card-body">
+<p>💳 Оля хоче ввести дані картки в невідомому магазині з підозріло низькими цінами.</p>
+<div class="risk-levels">
+<button type="button" class="risk-lvl" data-val="low" onclick="pickRiskLevel(this)">🟢 Низький</button>
+<button type="button" class="risk-lvl" data-val="mid" onclick="pickRiskLevel(this)">🟡 Середній</button>
+<button type="button" class="risk-lvl" data-val="high" onclick="pickRiskLevel(this)">🔴 Високий</button>
+</div>
+<div class="risk-card-feedback" hidden></div>
+</div>
+</div>
+<div class="risk-card" data-card="zakhar" data-correct="mid">
+<img src="https://res.cloudinary.com/dmydvhkzr/image/upload/v1782498752/forgotten_phone_pso73c.png" alt="Захар забув телефон у автобусі">
+<div class="risk-card-body">
+<p>📱 Захар забув телефон у автобусі.</p>
+<div class="risk-levels">
+<button type="button" class="risk-lvl" data-val="low" onclick="pickRiskLevel(this)">🟢 Низький</button>
+<button type="button" class="risk-lvl" data-val="mid" onclick="pickRiskLevel(this)">🟡 Середній</button>
+<button type="button" class="risk-lvl" data-val="high" onclick="pickRiskLevel(this)">🔴 Високий</button>
+</div>
+<div class="risk-card-feedback" hidden></div>
+</div>
+</div>
+<div class="risk-card" data-card="solomia" data-correct="mid">
+<img src="https://res.cloudinary.com/dmydvhkzr/image/upload/v1782498732/speech_b1uimm.png" alt="Соломія виступає без підготовки">
+<div class="risk-card-body">
+<p>🎤 Соломія виступає перед великою аудиторією без підготовки.</p>
+<div class="risk-levels">
+<button type="button" class="risk-lvl" data-val="low" onclick="pickRiskLevel(this)">🟢 Низький</button>
+<button type="button" class="risk-lvl" data-val="mid" onclick="pickRiskLevel(this)">🟡 Середній</button>
+<button type="button" class="risk-lvl" data-val="high" onclick="pickRiskLevel(this)">🔴 Високий</button>
+</div>
+<div class="risk-card-feedback" hidden></div>
+</div>
+</div>
+</div>
+<div class="risk-cards-progress" id="riskCardsProgress">Карток розв'язано: 0/4</div>
+<div id="s3Task3Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS3('s3Task2')">← Назад</button>
+<button class="btn btn-warning" onclick="retryRiskCards()">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="showS3('s3Task4')">Далі: Завдання 4 →</button>
+</div>
+</section>
+
+<!-- ✅ ВИПРАВЛЕНО s3Task4: додано selectSingle(this) -->
+<section class="card hidden" id="s3Task4">
+<h2>📝 Завдання 4. Одна небезпека — різний ризик</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Ситуація:</strong> Відкритий вогонь: свічка на столі, мангал, вогнище в лісі, мала дитина, що грається сірниками в ліжку.</div>
+<p class="mb-16"><strong>Чому одна й та сама небезпека має різний рівень ризику?</strong></p>
+<div class="task-options" id="s3Task4Options">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingle(this); checkSingleTask('#s3Task4Options','s3Task4Feedback','step3_task4','Ризик залежить від умов середовища та поведінки людини — тому одна небезпека дає різні рівні ризику.')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🌡️ Бо рівень ризику залежить від умов, середовища та поведінки людини</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s3Task4Options','s3Task4Feedback','step3_task4','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🧊 Бо небезпека завжди означає один і той самий ризик</div><div class="option-explanation">❌ Умови змінюють імовірність і тяжкість наслідків.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s3Task4Options','s3Task4Feedback','step3_task4','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🕐 Бо ризик залежить лише від пори дня</div><div class="option-explanation">❌ Пори дня замало — враховуються всі умови та поведінка.</div></div></div>
+</div>
+<div id="s3Task4Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS3('s3Task3')">← Назад</button>
+<button class="btn btn-success" onclick="goToStep(4)">Далі: Крок 4 →</button>
+</div>
+</section>
+</main>
+
+<!-- ==================== КРОК 4 ==================== -->
+<main class="container hidden" id="step4Page">
+<div class="step-header">
+<div class="step-header-top"><h2 class="step-title">🔄 Крок 4. Розвиток небезпечних ситуацій</h2><span class="step-badge">4 завдання</span></div>
+<div class="progress-dots"><div class="progress-dot completed"></div><div class="progress-dot completed"></div><div class="progress-dot completed"></div><div class="progress-dot active"></div><div class="progress-dot"></div><div class="progress-dot"></div></div>
+</div>
+<section class="card" id="s4Theory">
+<h2>📖 Теоретичний блок</h2>
+<div class="theory-compact" style="background: linear-gradient(135deg, var(--theory-red) 0%, #fecaca 100%); border-color: #fca5a5;">
+<h4>⚠️ Небезпека і ризик — не одне й те саме</h4>
+<p><strong>Небезпека безпосередньо загрожує життю, здоров'ю, майну або довкіллю.</strong> Ризик лише вказує на можливість небезпечної події.</p>
+</div>
+<h3 class="section-subtitle">🔀 Варіанти розвитку небезпечних ситуацій</h3>
+<div class="mini-cards">
+<div class="mini-card mc-green"><div class="mini-card-icon" style="background:#dcfce7;">🎛️</div><h5>Керований</h5><p>Небезпеку можна зупинити</p><div class="chain">Загоряння → гасіння → ситуація керована</div></div>
+<div class="mini-card mc-yellow"><div class="mini-card-icon" style="background:#fef3c7;">🐢</div><h5>Поступовий</h5><p>Небезпеку не відразу помічають</p><div class="chain">Конфлікт → цькування → психологічна травма</div></div>
+<div class="mini-card mc-red"><div class="mini-card-icon" style="background:#fee2e2;">⚡</div><h5>Раптовий</h5><p>Небезпека швидко призводить до наслідків</p><div class="chain">Швидкість → аварія → загроза життю</div></div>
+<div class="mini-card mc-purple"><div class="mini-card-icon" style="background:#f3e8ff;">🔗</div><h5>Ланцюговий</h5><p>Одна подія спричиняє інші</p><div class="chain">Фейк → паніка → черги → дефіцит</div></div>
+</div>
+<div class="key-point">Ваші рішення визначають, чи залишиться ситуація під контролем, чи перетвориться на ланцюг небезпек.</div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="goToMainPage()">← До змісту</button>
+<button class="btn btn-primary" onclick="showS4('s4Task1')">Далі: Завдання 1 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s4Task1">
+<h2>📝 Завдання 1. З'єднай тип розвитку з прикладом</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Інструкція:</strong> Обери тип розвитку ситуації зліва, а потім — відповідний приклад справа. З'єднані пари підсвічуються кольором.</div>
+<div class="matching-grid" id="matchingGridS4T1">
+<div class="matching-column">
+<h4>🔀 Тип розвитку</h4>
+<div class="matching-item" tabindex="0" role="button" data-concept="1" onclick="selectMatchingConcept(this)" onkeydown="kbActivate(event,this)">🎛️ Керований</div>
+<div class="matching-item" tabindex="0" role="button" data-concept="2" onclick="selectMatchingConcept(this)" onkeydown="kbActivate(event,this)">🐢 Поступовий</div>
+<div class="matching-item" tabindex="0" role="button" data-concept="3" onclick="selectMatchingConcept(this)" onkeydown="kbActivate(event,this)">⚡ Раптовий</div>
+<div class="matching-item" tabindex="0" role="button" data-concept="4" onclick="selectMatchingConcept(this)" onkeydown="kbActivate(event,this)">🔗 Ланцюговий</div>
+</div>
+<div class="matching-column">
+<h4>🎯 Приклади</h4>
+<div class="matching-item" tabindex="0" role="button" data-condition="3" onclick="selectMatchingCondition(this)" onkeydown="kbActivate(event,this)">Перевищення швидкості → аварія → загроза життю</div>
+<div class="matching-item" tabindex="0" role="button" data-condition="1" onclick="selectMatchingCondition(this)" onkeydown="kbActivate(event,this)">Загоряння → гасіння → ситуація під контролем</div>
+<div class="matching-item" tabindex="0" role="button" data-condition="4" onclick="selectMatchingCondition(this)" onkeydown="kbActivate(event,this)">Фейк → паніка → черги → дефіцит продуктів</div>
+<div class="matching-item" tabindex="0" role="button" data-condition="2" onclick="selectMatchingCondition(this)" onkeydown="kbActivate(event,this)">Конфлікт → цькування → психологічна травма</div>
+</div>
+</div>
+<div id="s4Task1Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS4('s4Theory')">← Назад</button>
+<button class="btn btn-primary" onclick="checkMatchingTask('matchingGridS4T1','s4Task1Feedback','step4_task1',4)">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryMatching('matchingGridS4T1','s4Task1Feedback','step4_task1')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="showS4('s4Task2')">Далі: Завдання 2 →</button>
+</div>
+</section>
+
+<!-- ✅ АДАПТОВАНО s4Task2: додано situation-box та оновлено картки -->
+<section class="card hidden" id="s4Task2">
+<h2>📝 Завдання 2. Впорядкуй ланцюг небезпек</h2>
+<div class="situation-box"><strong>📖 Ситуація:</strong> У соцмережах зʼявилося фейкове повідомлення про нібито закриття всіх продуктових магазинів у місті. Люди почали діяти під впливом паніки. <strong>Впорядкуй ланцюг подій</strong>, щоб побачити, як одна неправдива новина перетворюється на реальну небезпеку.</div>
+<div class="feedback feedback-warning mb-24"><strong>📌 Інструкція:</strong> Перетягни картки у правильному порядку розвитку ланцюгової ситуації (1→4).</div>
+<div class="drag-container">
+<div class="drag-source">
+<h4>📦 Картки:</h4>
+<div id="s4DragItems">
+<div class="drag-item" draggable="true" data-step="3"><div class="drag-item-step">❓</div><div>🛒 Масові закупівлі продуктів</div></div>
+<div class="drag-item" draggable="true" data-step="1"><div class="drag-item-step">❓</div><div>📱 Фейкове повідомлення про закриття магазинів</div></div>
+<div class="drag-item" draggable="true" data-step="4"><div class="drag-item-step">❓</div><div>📦 Порожні полиці в магазинах</div></div>
+<div class="drag-item" draggable="true" data-step="2"><div class="drag-item-step">❓</div><div>😰 Паніка серед населення</div></div>
+</div>
+</div>
+<div class="drag-target">
+<h4>🔢 Розмістіть у правильному порядку:</h4>
+<div id="s4DropZones">
+<div class="drop-zone" data-position="1"><div class="drop-zone-number">1</div><div class="drop-zone-text">Перетягни сюди</div></div>
+<div class="drop-zone" data-position="2"><div class="drop-zone-number">2</div><div class="drop-zone-text">Перетягни сюди</div></div>
+<div class="drop-zone" data-position="3"><div class="drop-zone-number">3</div><div class="drop-zone-text">Перетягни сюди</div></div>
+<div class="drop-zone" data-position="4"><div class="drop-zone-number">4</div><div class="drop-zone-text">Перетягни сюди</div></div>
+</div>
+</div>
+</div>
+<div id="s4Task2Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS4('s4Task1')">← Назад</button>
+<button class="btn btn-primary" onclick="checkOrderTask('#s4DropZones .drop-zone','s4Task2Feedback','step4_task2')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryOrder('s4DragItems','#s4DropZones .drop-zone',s4ItemsHTML,'s4Task2Feedback','step4_task2')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="showS4('s4Task3')">Далі: Завдання 3 →</button>
+</div>
+</section>
+
+<!-- ✅ ВИПРАВЛЕНО s4Task3: додано selectSingle(this) -->
+<section class="card hidden" id="s4Task3">
+<h2>📝 Завдання 3. Який розвиток найскладніший для виявлення?</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Питання:</strong> Який із варіантів розвитку небезпеки найскладніше виявити вчасно?</div>
+<div class="task-options" id="s4Task3Options">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="selectSingle(this); checkSingleTask('#s4Task3Options','s4Task3Feedback','step4_task3','Поступовий розвиток помічають не одразу — небезпека накопичується з часом.')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🐢 Поступовий — небезпеку не відразу помічають, вона накопичується</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s4Task3Options','s4Task3Feedback','step4_task3','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">⚡ Раптовий — усе стається дуже швидко</div><div class="option-explanation">❌ Раптову подію добре помітно — складність у швидкості реакції, а не у виявленні.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="selectSingle(this); checkSingleTask('#s4Task3Options','s4Task3Feedback','step4_task3','')" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🎛️ Керований — ситуацію можна зупинити</div><div class="option-explanation">❌ Керована ситуація якраз найпомітніша й підконтрольна.</div></div></div>
+</div>
+<div id="s4Task3Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS4('s4Task2')">← Назад</button>
+<button class="btn btn-success" onclick="showS4('s4Task4')">Далі: Завдання 4 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s4Task4">
+<h2>📝 Завдання 4. Ситуація: конфлікт у школі</h2>
+<div class="situation-box"><strong>📖 Ситуація:</strong> Під час перерви виникла суперечка між учнями. Один образив іншого. Частина учнів знімала подію на телефон, інші підтримували сторони. Натовп не зупинив конфлікт — він завершився штовханиною. Відео швидко поширили в чатах.</div>
+<p class="mb-16"><strong>Які дії учасників посилили небезпеку?</strong></p>
+<div class="task-options" id="s4Task4Options">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">📱 Знімали конфлікт на телефон замість того, щоб покликати дорослих</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">👥 Натовп підтримував сторони й не зупинив конфлікт</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🙋 Свідки одразу повідомили вчителя/модератора ситуації</div><div class="option-explanation">❌ Це безпечна дія — вона зменшує небезпеку.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🔁 Відео поширили в чатах — конфлікт став «ланцюгом небезпек»</div></div></div>
+</div>
+<div id="s4Task4Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS4('s4Task3')">← Назад</button>
+<button class="btn btn-primary" onclick="checkMultiTask('#s4Task4Options','s4Task4Feedback','step4_task4','Пасивність натовпу, зйомка та поширення відео перетворили конфлікт на ланцюг небезпек.')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryMulti('#s4Task4Options','s4Task4Feedback','step4_task4')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="goToStep(5)">Далі: Крок 5 →</button>
+</div>
+</section>
+</main>
+
+<!-- ==================== КРОК 5 ==================== -->
+<main class="container hidden" id="step5Page">
+<div class="step-header">
+<div class="step-header-top"><h2 class="step-title">🧭 Крок 5. Рішення в умовах невизначеності</h2><span class="step-badge">3 завдання</span></div>
+<div class="progress-dots"><div class="progress-dot completed"></div><div class="progress-dot completed"></div><div class="progress-dot completed"></div><div class="progress-dot completed"></div><div class="progress-dot active"></div><div class="progress-dot"></div></div>
+</div>
+<section class="card" id="s5Theory">
+<h2>📖 Теоретичний блок</h2>
+<div class="theory-compact">
+<h4>🌫️ Що таке невизначеність?</h4>
+<p><strong>Коли інформації бракує,</strong> складно ухвалити рішення і передбачити наслідки. У таких ситуаціях заважають емоції, поспіх, тиск інших людей, нестача інформації чи досвіду.</p>
+</div>
+<h3 class="section-subtitle">😰 Чинники невизначенності</h3>
+<div class="mini-cards">
+<div class="mini-card mc-red"><div class="mini-card-icon" style="background:#fee2e2;">😰</div><h5>Тривога, паніка</h5><p>Емоції заважають оцінити ситуацію</p></div>
+<div class="mini-card mc-orange"><div class="mini-card-icon" style="background:#ffedd5;">👥</div><h5>Тиск інших</h5><p>Натовп і друзі підштовхують до поспішних рішень</p></div>
+<div class="mini-card mc-yellow"><div class="mini-card-icon" style="background:#fef3c7;">⏱️</div><h5>Поспіх</h5><p>Дефіцит часу на обдумування</p></div>
+<div class="mini-card mc-purple"><div class="mini-card-icon" style="background:#f3e8ff;">❓</div><h5>Неперевірена інформація</h5><p>Складно відрізнити правду від маніпуляції</p></div>
+<div class="mini-card mc-blue"><div class="mini-card-icon" style="background:#dbeafe;">🧠</div><h5>Нестача досвіду</h5><p>Бракує знань, щоб передбачити наслідки</p></div>
+</div>
+<div class="theory-compact" style="background: linear-gradient(135deg, var(--theory-green) 0%, #bbf7d0 100%); border-color: #86efac;">
+<h4>🧭 Алгоритм прийняття рішень</h4>
+<div class="highlight-box"><strong>1️⃣</strong> Заспокойтеся. Зосередьтеся на ситуації</div>
+<div class="highlight-box"><strong>2️⃣</strong> Визначте, що відомо та можливі варіанти розвитку подій</div>
+<div class="highlight-box"><strong>3️⃣</strong> Оберіть варіант, що зменшує ризики і буде безпечнішим</div>
+<div class="highlight-box"><strong>4️⃣</strong> Проаналізуйте результат. За потреби відкоригуйте дії</div>
+</div>
+<div class="key-point">У ситуації невизначеності не поспішай діяти під впливом емоцій: зупинися, оціни ризики й обери найбезпечнішу дію.</div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="goToMainPage()">← До змісту</button>
+<button class="btn btn-primary" onclick="showS5('s5Task1')">Далі: Завдання 1 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s5Task1">
+<h2>📝 Завдання 1. Впорядкуй алгоритм рішень</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Інструкція:</strong> Перетягни кроки алгоритму у правильному порядку (1→4).</div>
+<div class="drag-container">
+<div class="drag-source">
+<h4>📦 Картки:</h4>
+<div id="s5DragItems">
+<div class="drag-item" draggable="true" data-step="3"><div class="drag-item-step">❓</div><div>🛡️ Обери варіант, що зменшує ризики</div></div>
+<div class="drag-item" draggable="true" data-step="1"><div class="drag-item-step">❓</div><div>🧘 Заспокойся, зосередься на ситуації</div></div>
+<div class="drag-item" draggable="true" data-step="4"><div class="drag-item-step">❓</div><div>🔎 Проаналізуй результат, за потреби відкоригуй дії</div></div>
+<div class="drag-item" draggable="true" data-step="2"><div class="drag-item-step">❓</div><div>🗺️ Визнач, що відомо і можливі варіанти подій</div></div>
+</div>
+</div>
+<div class="drag-target">
+<h4>🔢 Розмістіть у правильному порядку:</h4>
+<div id="s5DropZones">
+<div class="drop-zone" data-position="1"><div class="drop-zone-number">1</div><div class="drop-zone-text">Перетягни сюди</div></div>
+<div class="drop-zone" data-position="2"><div class="drop-zone-number">2</div><div class="drop-zone-text">Перетягни сюди</div></div>
+<div class="drop-zone" data-position="3"><div class="drop-zone-number">3</div><div class="drop-zone-text">Перетягни сюди</div></div>
+<div class="drop-zone" data-position="4"><div class="drop-zone-number">4</div><div class="drop-zone-text">Перетягни сюди</div></div>
+</div>
+</div>
+</div>
+<div id="s5Task1Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS5('s5Theory')">← Назад</button>
+<button class="btn btn-primary" onclick="checkOrderTask('#s5DropZones .drop-zone','s5Task1Feedback','step5_task1')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryOrder('s5DragItems','#s5DropZones .drop-zone',s5ItemsHTML,'s5Task1Feedback','step5_task1')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="showS5('s5Task2')">Далі: Завдання 2 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s5Task2">
+<h2>📝 Завдання 2. Чинники невизначенності</h2>
+<div class="feedback feedback-warning mb-24"><strong>📌 Питання:</strong> Що заважає людині ухвалювати зважені рішення в умовах невизначеності?</div>
+<div class="task-options" id="s5Task2Options">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">😰 Тривога, паніка</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🧘 Спокій і достатня перевірена інформація</div><div class="option-explanation">❌ Навпаки — це допомагає ухвалювати зважені рішення.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">👥 Тиск інших людей (натовп, друзі)</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">⏱️ Поспіх, дефіцит часу</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="toggleOption(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">❓ Неперевірена інформація та нестача досвіду</div></div></div>
+</div>
+<div id="s5Task2Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS5('s5Task1')">← Назад</button>
+<button class="btn btn-primary" onclick="checkMultiTask('#s5Task2Options','s5Task2Feedback','step5_task2','Емоції, тиск, поспіх і брак інформації заважають оцінити ризики.')">✓ Перевірити</button>
+<button class="btn btn-warning" onclick="retryMulti('#s5Task2Options','s5Task2Feedback','step5_task2')">🔄 Спробувати ще раз</button>
+<button class="btn btn-success" onclick="showS5('s5Task3')">Далі: Завдання 3 →</button>
+</div>
+</section>
+
+<section class="card hidden" id="s5Task3">
+<h2>📝 Завдання 3. Ситуація: Альбіна у незнайомому районі</h2>
+<div class="situation-box"><strong>📖 Ситуація:</strong> Після тренування Альбіна випадково поїхала не тим автобусом і опинилася в незнайомому районі. Телефон розрядився, а на вулиці вже починало темніти.</div>
+<div class="image-container">
+<img src="https://res.cloudinary.com/dmydvhkzr/image/upload/v1782655864/alina-scenario_r157jd.png" alt="Альбіна в незнайомому районі, телефон розрядився" style="width:100%;max-width:600px;border-radius:10px;">
+</div>
+<div class="feedback feedback-warning mb-24"><strong>📌 Інструкція:</strong> Відповідай по черзі: розгорни питання, обери відповідь і натисни «Перевірити». Виконані питання позначаються ✅.</div>
+<div class="acc-item open" id="acc-q1">
+<button type="button" class="acc-header" aria-expanded="true" aria-controls="accBodyQ1" onclick="toggleAcc(this)">
+<span>🔍 Питання 1. Які ознаки невизначенності є в цій ситуації?</span>
+<span class="acc-status">В процесі</span><span class="acc-arrow">▼</span>
+</button>
+<div class="acc-body" id="accBodyQ1">
+<div class="task-options" id="albQ1" data-type="multi">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="albinaToggle(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🗺️ Незнайомий район — Альбіна не знає маршруту й орієнтирів</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="albinaToggle(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">📵 Телефон розрядився — немає звʼязку, карти й ліхтарика</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="albinaToggle(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">✅ Альбіна має достатньо інформації й легко передбачить наслідки</div><div class="option-explanation">❌ Навпаки — інформації бракує, це і є невизначеність.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="albinaToggle(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🌆 Темніє — обмежена видимість і мало часу</div></div></div>
+</div>
+<div id="albQ1Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<button class="btn btn-primary" onclick="checkAlbinaSub('albQ1','albQ1Feedback','q1','Усі ознаки невизначеності визначено!')">✓ Перевірити</button>
+</div>
+</div>
+<div class="acc-item" id="acc-q2">
+<button type="button" class="acc-header" aria-expanded="false" aria-controls="accBodyQ2" onclick="toggleAcc(this)">
+<span>🙋 Питання 2. До кого можна безпечно звернутися по допомогу?</span>
+<span class="acc-status">В процесі</span><span class="acc-arrow">▼</span>
+</button>
+<div class="acc-body" id="accBodyQ2">
+<div class="task-options" id="albQ2" data-type="single">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="albinaSingle(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">👮 До поліцейського, охоронця або персоналу магазину/аптеки</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="albinaSingle(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🚗 До незнайомця, який пропонує «підвезти»</div><div class="option-explanation">❌ Сідати в авто до незнайомців небезпечно.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="albinaSingle(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🌑 Ні до кого — йти навмання темними вулицями</div><div class="option-explanation">❌ Це підвищує ризик — обирай людні освітлені місця.</div></div></div>
+</div>
+<div id="albQ2Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<button class="btn btn-primary" onclick="checkAlbinaSub('albQ2','albQ2Feedback','q2','Безпечне джерело допомоги визначено!')">✓ Перевірити</button>
+</div>
+</div>
+<div class="acc-item" id="acc-q3">
+<button type="button" class="acc-header" aria-expanded="false" aria-controls="accBodyQ3" onclick="toggleAcc(this)">
+<span>🧭 Питання 3. Яке рішення Альбіни найбезпечніше?</span>
+<span class="acc-status">В процесі</span><span class="acc-arrow">▼</span>
+</button>
+<div class="acc-body" id="accBodyQ3">
+<div class="task-options" id="albQ3" data-type="single">
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="albinaSingle(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🚗 Погодитися на пропозицію незнайомця «підвезти»</div><div class="option-explanation">❌ Це може погіршити ситуацію.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="albinaSingle(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🏪 Зайти в людне місце, попросити зарядити телефон і подзвонити батькам</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="albinaSingle(this)" onkeydown="kbActivate(event,this)"><div class="option-radio"></div><div class="option-text"><div class="option-label">🚏 Чекати на порожній зупинці, поки хтось пройде повз</div><div class="option-explanation">❌ Краще самому вийти до людного освітленого місця.</div></div></div>
+</div>
+<div id="albQ3Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<button class="btn btn-primary" onclick="checkAlbinaSub('albQ3','albQ3Feedback','q3','Найбезпечніше рішення обрано!')">✓ Перевірити</button>
+</div>
+</div>
+<div class="acc-item" id="acc-q4">
+<button type="button" class="acc-header" aria-expanded="false" aria-controls="accBodyQ4" onclick="toggleAcc(this)">
+<span>⚠️ Питання 4. Які дії можуть погіршити ситуацію?</span>
+<span class="acc-status">В процесі</span><span class="acc-arrow">▼</span>
+</button>
+<div class="acc-body" id="accBodyQ4">
+<div class="task-options" id="albQ4" data-type="multi">
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="albinaToggle(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🚗 Сідати в машину до незнайомих людей</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="false" onclick="albinaToggle(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🏪 Залишатися в людному освітленому місці до приїзду батьків</div><div class="option-explanation">❌ Це безпечна дія, а не помилка.</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="albinaToggle(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">🌑 Йти самоті неосвітленими порожніми вулицями</div></div></div>
+<div class="option" tabindex="0" role="button" data-correct="true" onclick="albinaToggle(this)" onkeydown="kbActivate(event,this)"><div class="option-checkbox"></div><div class="option-text"><div class="option-label">😱 Діяти імпульсивно, піддавшись паніці</div></div></div>
+</div>
+<div id="albQ4Feedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<button class="btn btn-primary" onclick="checkAlbinaSub('albQ4','albQ4Feedback','q4','Ти правильно визначив(ла) ризиковані дії!')">✓ Перевірити</button>
+</div>
+</div>
+<div id="albinaFinalFeedback" class="feedback" style="display:none;" aria-live="polite"></div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="showS5('s5Task2')">← Назад</button>
+<button class="btn btn-success" onclick="goToStep(6)">Завершити крок →</button>
+</div>
+</section>
+</main>
+
+<!-- ==================== КРОК 6 ==================== -->
+<main class="container hidden" id="step6Page">
+<div class="step6-header">
+<h2>🎉 Вітаємо! Ти завершив(ла) тренажер!</h2>
+<p>Час дізнатися свій рівень та підсумки навчання</p>
+</div>
+<div class="card">
+<h2>⭐ Оціни свої вміння</h2>
+<p style="margin-bottom: 20px; color: var(--text-muted);">Оціни, наскільки ти впевнений(а) у кожному з умінь:</p>
+<div class="skill-eval">
+<div class="skill-title">⚖️ Я вмію оцінювати можливі ризики та наслідки своїх дій</div>
+<div class="star-rating" data-skill="1">
+<button class="star" aria-label="1 зірка" onclick="rate(1,1)">★</button><button class="star" aria-label="2 зірки" onclick="rate(1,2)">★</button><button class="star" aria-label="3 зірки" onclick="rate(1,3)">★</button><button class="star" aria-label="4 зірки" onclick="rate(1,4)">★</button><button class="star" aria-label="5 зірок" onclick="rate(1,5)">★</button>
+</div>
+</div>
+<div class="skill-eval">
+<div class="skill-title">🔍 Я можу аналізувати різні варіанти дій</div>
+<div class="star-rating" data-skill="2">
+<button class="star" aria-label="1 зірка" onclick="rate(2,1)">★</button><button class="star" aria-label="2 зірки" onclick="rate(2,2)">★</button><button class="star" aria-label="3 зірки" onclick="rate(2,3)">★</button><button class="star" aria-label="4 зірки" onclick="rate(2,4)">★</button><button class="star" aria-label="5 зірок" onclick="rate(2,5)">★</button>
+</div>
+</div>
+<div class="skill-eval">
+<div class="skill-title">🛡️ Я знаю кілька варіантів дій у небезпечній ситуації та можу обрати найкращий</div>
+<div class="star-rating" data-skill="3">
+<button class="star" aria-label="1 зірка" onclick="rate(3,1)">★</button><button class="star" aria-label="2 зірки" onclick="rate(3,2)">★</button><button class="star" aria-label="3 зірки" onclick="rate(3,3)">★</button><button class="star" aria-label="4 зірки" onclick="rate(3,4)">★</button><button class="star" aria-label="5 зірок" onclick="rate(3,5)">★</button>
+</div>
+</div>
+</div>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-value" id="statTasks">0/16</div><div class="stat-label">✅ Виконано завдань</div></div>
+<div class="stat-card"><div class="stat-value" id="statCorrect">0</div><div class="stat-label">🎯 Правильних відповідей</div></div>
+<div class="stat-card"><div class="stat-value" id="statSteps">0/5</div><div class="stat-label">📍 Кроків пройдено</div></div>
+<div class="stat-card"><div class="stat-value" id="statAccuracy">0%</div><div class="stat-label">🏅 Точність</div></div>
+</div>
+<div class="progress-circle-container">
+<div class="progress-circle" id="progressCircle">
+<div class="progress-circle-inner">
+<div class="circle-percentage" id="circlePercentage">0%</div>
+<div class="circle-label">Загальний прогрес</div>
+</div>
+</div>
+</div>
+<div class="card">
+<h3 style="margin-bottom: 16px; text-align: center;">📋 Твій шлях: 5 кроків до майстерності</h3>
+<div class="steps-summary" id="stepsSummary"></div>
+</div>
+<div style="text-align: center;">
+<div class="level-badge" id="finalBadge">
+<div class="level-badge-icon">⭐</div>
+<div class="level-badge-text">
+<div class="level-badge-title" id="finalLevelTitle">Початківець</div>
+<div class="level-badge-desc" id="finalLevelDesc">⭐☆☆☆☆</div>
+</div>
+</div>
+</div>
+<div class="tip-card">💡 <strong>Крок уперед:</strong> чому перед тим, як погодитися на пропозицію друзів, варто оцінити не лише бажання, а й можливі ризики? 🚀 Продовжуй навчатися!</div>
+<div class="navigation">
+<button class="btn btn-warning" onclick="resetProgress()">🔄 Пройти ще раз</button>
+<button class="btn btn-primary" onclick="goToMainPage()">🏠 На головну</button>
+</div>
+</main>
+
+<!-- МОДАЛКА ПРОГРЕСУ -->
+<div class="modal-overlay" id="progressModal" role="dialog" aria-modal="true" aria-labelledby="progressTitle">
+<div class="modal">
+<div class="modal-header">
+<h2 id="progressTitle">📊 Мій прогрес</h2>
+<button class="modal-close" onclick="closeModal('progressModal')" aria-label="Закрити вікно">×</button>
+</div>
+<div class="text-center">
+<div style="font-size: 48px; margin-bottom: 16px;" id="modalLevelEmoji">⭐☆☆☆☆</div>
+<h3 style="color: var(--primary); margin-bottom: 24px;" id="modalLevelName">Початківець</h3>
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;">
+<div style="background: var(--bg); padding: 14px; border-radius: 12px;"><div style="font-size: 24px; font-weight: 700; color: var(--accent);" id="modalTasks">0/16</div><div style="font-size: 12px; color: var(--text-muted);">Завдань</div></div>
+<div style="background: var(--bg); padding: 14px; border-radius: 12px;"><div style="font-size: 24px; font-weight: 700; color: var(--success);" id="modalCorrect">0</div><div style="font-size: 12px; color: var(--text-muted);">Правильних</div></div>
+<div style="background: var(--bg); padding: 14px; border-radius: 12px;"><div style="font-size: 24px; font-weight: 700; color: var(--warning);" id="modalSteps">0/5</div><div style="font-size: 12px; color: var(--text-muted);">Кроків</div></div>
+<div style="background: var(--bg); padding: 14px; border-radius: 12px;"><div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="modalAccuracy">0%</div><div style="font-size: 12px; color: var(--text-muted);">Точність</div></div>
+</div>
+<div style="background: var(--border); height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 12px;">
+<div id="modalProgressBar" style="height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); width: 0%; transition: width 0.5s ease;"></div>
+</div>
+<p style="text-align: center; font-weight: 600; color: var(--primary);">Загальний прогрес: <span id="modalProgressPercent">0%</span></p>
+</div>
+</div>
+</div>
+
+<!-- МОДАЛКА ДОПОМОГИ -->
+<div class="modal-overlay" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+<div class="modal">
+<div class="modal-header">
+<h2 id="helpTitle">❓ Як працювати</h2>
+<button class="modal-close" onclick="closeModal('helpModal')" aria-label="Закрити вікно">×</button>
+</div>
+<div class="feature-list">
+<div data-icon="🎯" style="padding: 10px 0; padding-left: 32px; position: relative; border-bottom: 1px solid var(--border);"><strong>Як почати?</strong><br>Натисни «Розпочати параграф» або обери крок у навігації.</div>
+<div data-icon="✅" style="padding: 10px 0; padding-left: 32px; position: relative; border-bottom: 1px solid var(--border);"><strong>Як проходити?</strong><br>Читай теорію та виконуй практичні завдання.</div>
+<div data-icon="💡" style="padding: 10px 0; padding-left: 32px; position: relative; border-bottom: 1px solid var(--border);"><strong>Аналізуй ситуації</strong><br>Оцінюй ризики за ймовірністю та наслідками.</div>
+<div data-icon="🏆" style="padding: 10px 0; padding-left: 32px; position: relative;"><strong>Отримай відзнаку</strong><br>Після завершення — оціни свій прогрес.</div>
+</div>
+<button class="btn btn-primary mt-24" onclick="closeModal('helpModal')" style="width: 100%;">Зрозуміло!</button>
+</div>
+</div>
+
+<!-- МОДАЛКА МАТРИЦІ РИЗИКУ -->
+<div class="modal-overlay" id="matrixModal" role="dialog" aria-modal="true" aria-labelledby="matrixModalTitle">
+<div class="modal">
+<div class="modal-header">
+<h2 id="matrixModalTitle">🟢 Низький ризик</h2>
+<button class="modal-close" onclick="closeModal('matrixModal')" aria-label="Закрити вікно">×</button>
+</div>
+<p class="matrix-modal-combo" id="matrixModalCombo"></p>
+<div class="matrix-modal-desc" id="matrixModalDesc"></div>
+<div class="matrix-modal-examples">
+<h4>Приклади:</h4>
+<ul id="matrixModalExamples"></ul>
+</div>
+</div>
+</div>
+
+<script>
+// ============ КЛАВІАТУРНА АКТИВНІСТЬ ============
+function kbActivate(event, element) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); element.click(); } }
+
+// ============ 🆕 НОВА ФУНКЦІЯ: selectSingle ============
+function selectSingle(el) {
+if (el.classList.contains('disabled')) return;
+const container = el.closest('.task-options');
+container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+el.classList.add('selected');
+}
+
+// ============ УНІВЕРСАЛЬНИЙ DRAG & DROP ============
+let draggedItem = null, draggedClone = null, currentDropTarget = null, touchOffsetX = 0, touchOffsetY = 0;
+function initUniversalDragDrop(dragContainerId, dropZones, dropHandler) {
+const dragItems = document.querySelectorAll(`#${dragContainerId} .drag-item`);
+const zones = typeof dropZones === 'string' ? document.querySelectorAll(dropZones) : dropZones;
+dragItems.forEach(item => {
+item.addEventListener('dragstart', dragStart);
+item.addEventListener('dragend', dragEnd);
+item.addEventListener('touchstart', touchStart, { passive: false });
+item.addEventListener('touchmove', touchMove, { passive: false });
+item.addEventListener('touchend', touchEnd, { passive: false });
+});
+zones.forEach(zone => {
+zone.addEventListener('dragover', dragOver);
+zone.addEventListener('dragleave', dragLeave);
+zone.addEventListener('drop', (e) => dropHandler.call(zone, e));
+zone._dropHandler = dropHandler;
+});
+}
+function dragStart(e) { draggedItem = this; setTimeout(() => this.classList.add('dragging'), 0); }
+function dragEnd(e) { this.classList.remove('dragging'); draggedItem = null; }
+function dragOver(e) { e.preventDefault(); this.classList.add('drag-over'); }
+function dragLeave(e) { this.classList.remove('drag-over'); }
+function touchStart(e) {
+e.preventDefault(); draggedItem = this;
+const touch = e.touches[0]; const rect = this.getBoundingClientRect();
+touchOffsetX = touch.clientX - rect.left; touchOffsetY = touch.clientY - rect.top;
+draggedClone = this.cloneNode(true);
+draggedClone.style.cssText = `position:fixed;left:${touch.clientX - touchOffsetX}px;top:${touch.clientY - touchOffsetY}px;width:${rect.width}px;z-index:9999;opacity:0.85;pointer-events:none;transform:rotate(2deg) scale(1.05);`;
+document.body.appendChild(draggedClone); this.style.opacity = '0.3';
+}
+function touchMove(e) {
+e.preventDefault(); if (!draggedClone) return;
+const touch = e.touches[0];
+draggedClone.style.left = (touch.clientX - touchOffsetX) + 'px';
+draggedClone.style.top = (touch.clientY - touchOffsetY) + 'px';
+draggedClone.style.display = 'none';
+const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+draggedClone.style.display = '';
+const zone = elementBelow ? elementBelow.closest('.drop-zone') : null;
+document.querySelectorAll('.drop-zone.drag-over').forEach(z => { if (z !== zone) z.classList.remove('drag-over'); });
+if (zone) { zone.classList.add('drag-over'); currentDropTarget = zone; } else { currentDropTarget = null; }
+}
+function touchEnd(e) {
+e.preventDefault(); if (!draggedItem) return;
+if (draggedClone) { draggedClone.remove(); draggedClone = null; }
+draggedItem.style.opacity = '';
+if (currentDropTarget) {
+currentDropTarget.classList.remove('drag-over');
+const dropHandler = currentDropTarget._dropHandler || function(){};
+dropHandler.call(currentDropTarget, { preventDefault: () => {} });
+}
+draggedItem = null; currentDropTarget = null;
+}
+function makeDropHandler(sourceId) {
+return function(e) {
+e.preventDefault(); this.classList.remove('drag-over');
+if (draggedItem) {
+if (this.classList.contains('filled')) {
+const existingText = this.querySelector('.drop-zone-text').textContent;
+const existingStep = this.dataset.step;
+const newItem = document.createElement('div');
+newItem.className = 'drag-item'; newItem.draggable = true; newItem.dataset.step = existingStep;
+newItem.innerHTML = `<div class="drag-item-step">❓</div><div>${existingText}</div>`;
+newItem.addEventListener('dragstart', dragStart); newItem.addEventListener('dragend', dragEnd);
+newItem.addEventListener('touchstart', touchStart, { passive: false });
+newItem.addEventListener('touchmove', touchMove, { passive: false });
+newItem.addEventListener('touchend', touchEnd, { passive: false });
+document.getElementById(sourceId).appendChild(newItem);
+}
+const itemText = draggedItem.querySelector('div:last-child').textContent;
+this.innerHTML = `<div class="drop-zone-number">${this.dataset.position}</div><div class="drop-zone-text">${itemText}</div>`;
+this.classList.add('filled'); this.dataset.step = draggedItem.dataset.step;
+draggedItem.remove(); draggedItem = null;
+}
+};
+}
+const dropS4 = makeDropHandler('s4DragItems');
+const dropS5 = makeDropHandler('s5DragItems');
+function initS4DragAndDrop() { initUniversalDragDrop('s4DragItems', '#s4DropZones .drop-zone', dropS4); }
+function initS5DragAndDrop() { initUniversalDragDrop('s5DragItems', '#s5DropZones .drop-zone', dropS5); }
+
+// ✅ ОНОВЛЕНО s4ItemsHTML з новими картками
+const s4ItemsHTML = `
+<div class="drag-item" draggable="true" data-step="3"><div class="drag-item-step">❓</div><div>🛒 Масові закупівлі продуктів</div></div>
+<div class="drag-item" draggable="true" data-step="1"><div class="drag-item-step">❓</div><div>📱 Фейкове повідомлення про закриття магазинів</div></div>
+<div class="drag-item" draggable="true" data-step="4"><div class="drag-item-step">❓</div><div>📦 Порожні полиці в магазинах</div></div>
+<div class="drag-item" draggable="true" data-step="2"><div class="drag-item-step">❓</div><div>😰 Паніка серед населення</div></div>`;
+
+const s5ItemsHTML = `
+<div class="drag-item" draggable="true" data-step="3"><div class="drag-item-step">❓</div><div>🛡️ Обери варіант, що зменшує ризики</div></div>
+<div class="drag-item" draggable="true" data-step="1"><div class="drag-item-step">❓</div><div>🧘 Заспокойся, зосередься на ситуації</div></div>
+<div class="drag-item" draggable="true" data-step="4"><div class="drag-item-step">❓</div><div>🔎 Проаналізуй результат, за потреби відкоригуй дії</div></div>
+<div class="drag-item" draggable="true" data-step="2"><div class="drag-item-step">❓</div><div>🗺️ Визнач, що відомо і можливі варіанти подій</div></div>`;
+
+// ============ СИСТЕМА ПРОГРЕСУ (16 завдань) ============
+const stepTracker = {
+step1: { total: 1, completed: 0, tasks: { task1: false } },
+step2: { total: 4, completed: 0, tasks: { task1: false, task2: false, task3: false, task4: false } },
+step3: { total: 4, completed: 0, tasks: { task1: false, task2: false, task3: false, task4: false } },
+step4: { total: 4, completed: 0, tasks: { task1: false, task2: false, task3: false, task4: false } },
+step5: { total: 3, completed: 0, tasks: { task1: false, task2: false, task3: false } }
+};
+const stepsCompleted = { 1: false, 2: false, 3: false, 4: false, 5: false };
+const progressTracker = { correct: 0, total: 0, answered: new Set() };
+const state = { currentStep: 0, selfRatings: [0, 0, 0] };
+const STORAGE_KEY = 'section2Progress_v3';
+function onTaskSuccess(taskId) {
+if (!progressTracker.answered.has(taskId)) {
+progressTracker.answered.add(taskId); progressTracker.correct++; progressTracker.total++;
+}
+updateStepTrackerFromTask(taskId); updateLiveProgress(); saveProgress();
+}
+function onTaskWrong(taskId) {
+if (!progressTracker.answered.has(taskId)) {
+progressTracker.answered.add(taskId); progressTracker.total++;
+updateLiveProgress(); saveProgress();
+}
+}
+function updateStepTrackerFromTask(taskId) {
+const map = {
+step1_task1: [1, 'task1'],
+step2_task1: [2, 'task1'], step2_task2: [2, 'task2'], step2_task3: [2, 'task3'], step2_task4: [2, 'task4'],
+step3_task1: [3, 'task1'], step3_task2: [3, 'task2'], step3_task3: [3, 'task3'], step3_task4: [3, 'task4'],
+step4_task1: [4, 'task1'], step4_task2: [4, 'task2'], step4_task3: [4, 'task3'], step4_task4: [4, 'task4'],
+step5_task1: [5, 'task1'], step5_task2: [5, 'task2'], step5_task3: [5, 'task3']
+};
+if (map[taskId]) { stepTracker['step' + map[taskId][0]].tasks[map[taskId][1]] = true; updateStepProgress(map[taskId][0]); }
+}
+function updateStepProgress(stepNum) {
+const step = stepTracker['step' + stepNum];
+step.completed = Object.values(step.tasks).filter(v => v).length;
+if (step.completed === step.total && !stepsCompleted[stepNum]) {
+stepsCompleted[stepNum] = true;
+showToast(`🎉 Крок ${stepNum} завершено!`, '🏆');
+}
+updateStep6Display();
+}
+function updateLiveProgress() {
+const totalTasks = 16;
+let completedTasks = 0;
+for (let i = 1; i <= 5; i++) completedTasks += stepTracker['step' + i].completed;
+const percent = Math.min(100, Math.round((completedTasks / totalTasks) * 100));
+const topBar = document.getElementById('topProgressBar'); if (topBar) topBar.style.width = percent + '%';
+const wp = document.getElementById('widgetPercentage'); if (wp) wp.textContent = percent + '%';
+const wt = document.getElementById('widgetTasks'); if (wt) wt.textContent = `${completedTasks}/${totalTasks}`;
+const miniMap = document.getElementById('widgetMiniMap');
+if (miniMap) {
+miniMap.innerHTML = '';
+for (let i = 1; i <= 5; i++) {
+const dot = document.createElement('div');
+dot.className = 'mini-step';
+if (stepsCompleted[i]) { dot.classList.add('completed'); dot.innerHTML = '✓'; }
+else if (state.currentStep === i) { dot.classList.add('current'); dot.textContent = i; }
+else dot.textContent = i;
+miniMap.appendChild(dot);
+}
+}
+renderStepNavigation(); updateStep6Display();
+}
+function loadProgress() {
+const saved = localStorage.getItem(STORAGE_KEY);
+if (saved) {
+try {
+const data = JSON.parse(saved);
+if (data.progressTracker) {
+progressTracker.correct = data.progressTracker.correct || 0;
+progressTracker.total = data.progressTracker.total || 0;
+progressTracker.answered = new Set(data.progressTracker.answered || []);
+}
+if (data.stepTracker) for (let i = 1; i <= 5; i++) if (data.stepTracker['step' + i]) {
+stepTracker['step' + i].completed = data.stepTracker['step' + i].completed || 0;
+stepTracker['step' + i].tasks = data.stepTracker['step' + i].tasks || stepTracker['step' + i].tasks;
+}
+if (data.stepsCompleted) for (let i = 1; i <= 5; i++) stepsCompleted[i] = data.stepsCompleted[i] || false;
+if (data.state) { state.currentStep = data.state.currentStep || 0; state.selfRatings = data.state.selfRatings || [0, 0, 0]; }
+} catch (e) { console.error('Помилка завантаження:', e); }
+}
+updateLiveProgress(); renderStepNavigation();
+}
+function saveProgress() {
+sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ progressTracker: { correct: progressTracker.correct, total: progressTracker.total, answered: Array.from(progressTracker.answered) }, stepTracker, stepsCompleted, state }));
+}
+// ============ НАВІГАЦІЯ ============
+const steps = [
+{ id: 1, icon: '🎯', title: 'Стартове завдання', tasks: 1 },
+{ id: 2, icon: '🧩', title: 'Види ризиків', tasks: 4 },
+{ id: 3, icon: '📊', title: 'Оцінка ризиків', tasks: 4 },
+{ id: 4, icon: '🔄', title: 'Розвиток небезпечних ситуацій', tasks: 4 },
+{ id: 5, icon: '🧭', title: 'Рішення у невизначеності', tasks: 3 },
+{ id: 6, icon: '🏆', title: 'Самооцінювання', tasks: 0 }
+];
+function renderStepNavigation() {
+const nav = document.getElementById('stepNavigation'); if (!nav) return;
+nav.innerHTML = '';
+steps.forEach((step, index) => {
+const item = document.createElement('div');
+item.className = 'step-nav-item';
+const tasksDone = step.tasks > 0 ? stepTracker['step' + step.id].completed : 0;
+const isCompleted = step.tasks > 0 && stepsCompleted[step.id];
+if (isCompleted) item.classList.add('completed');
+else if (index === state.currentStep - 1) item.classList.add('active');
+const statusText = step.tasks > 0 ? `${tasksDone}/${step.tasks} завдань` : 'Фінал';
+item.innerHTML = `<div class="step-nav-number">${isCompleted ? '' : (index + 1)}</div><div class="step-nav-content"><div class="step-nav-title">${step.icon} ${step.title}</div><div class="step-nav-status">${statusText}</div></div>`;
+item.onclick = () => goToStep(index + 1);
+item.setAttribute('tabindex', '0'); item.setAttribute('role', 'button');
+item.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToStep(index + 1); } };
+nav.appendChild(item);
+});
+}
+function updateStep6Display() {
+const totalTasks = 16;
+let completedTasks = 0;
+for (let i = 1; i <= 5; i++) completedTasks += stepTracker['step' + i].completed;
+const percent = Math.min(100, Math.round((completedTasks / totalTasks) * 100));
+const accuracy = progressTracker.total > 0 ? Math.round((progressTracker.correct / progressTracker.total) * 100) : 0;
+const completedSteps = Object.values(stepsCompleted).filter(v => v).length;
+const elTasks = document.getElementById('statTasks'); if (elTasks) elTasks.textContent = `${completedTasks}/${totalTasks}`;
+const elCorrect = document.getElementById('statCorrect'); if (elCorrect) elCorrect.textContent = progressTracker.correct;
+const elSteps = document.getElementById('statSteps'); if (elSteps) elSteps.textContent = `${completedSteps}/5`;
+const elAccuracy = document.getElementById('statAccuracy'); if (elAccuracy) elAccuracy.textContent = `${accuracy}%`;
+const circle = document.getElementById('progressCircle');
+const circlePercentage = document.getElementById('circlePercentage');
+if (circle) circle.style.background = `conic-gradient(var(--success) ${percent}%, var(--bg) ${percent}%)`;
+if (circlePercentage) circlePercentage.textContent = `${percent}%`;
+let level = 'Початківець', emoji = '⭐☆☆☆☆';
+if (percent >= 76) { level = 'Експерт безпечних рішень'; emoji = '⭐⭐⭐⭐⭐'; }
+else if (percent >= 51) { level = 'Дослідник'; emoji = '⭐⭐⭐☆☆'; }
+else if (percent >= 26) { level = 'Учень'; emoji = '⭐⭐☆☆☆'; }
+const elLevel = document.getElementById('finalLevelTitle'); if (elLevel) elLevel.textContent = level;
+const elEmoji = document.getElementById('finalLevelDesc'); if (elEmoji) elEmoji.textContent = emoji;
+const stepsSummary = document.getElementById('stepsSummary');
+if (stepsSummary) {
+stepsSummary.innerHTML = '';
+const stepsInfo = [
+{ icon: '🎯', title: 'Стартове завдання', tasks: 1 },
+{ icon: '🧩', title: 'Види ризиків', tasks: 4 },
+{ icon: '📊', title: 'Оцінка ризиків', tasks: 4 },
+{ icon: '🔄', title: 'Розвиток небезпечних ситуацій', tasks: 4 },
+{ icon: '🧭', title: 'Рішення у невизначеності', tasks: 3 }
+];
+stepsInfo.forEach((step, index) => {
+const tasksDone = stepTracker['step' + (index + 1)].completed;
+const isCompleted = stepsCompleted[index + 1];
+const stepCard = document.createElement('div');
+stepCard.className = 'step-card';
+stepCard.innerHTML = `<div class="step-card-icon">${step.icon}</div><div class="step-card-info"><div class="step-card-title">${step.title}</div><div class="step-card-status ${isCompleted ? 'completed' : ''}">${tasksDone}/${step.tasks} завдань виконано ${isCompleted ? '✅' : ''}</div></div>`;
+stepsSummary.appendChild(stepCard);
+});
+}
+}
+function hideAllPages() {
+['mainPage', 'step1Page', 'step2Page', 'step3Page', 'step4Page', 'step5Page', 'step6Page'].forEach(id => {
+const el = document.getElementById(id); if (el) el.classList.add('hidden');
+});
+}
+function goToMainPage() {
+hideAllPages();
+document.getElementById('mainPage').classList.remove('hidden');
+document.getElementById('headerTitle').textContent = '🛡️ Тренажер «Навігатор ризиків»';
+state.currentStep = 0; saveProgress();
+window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function goToStep(stepNumber) {
+hideAllPages();
+if (stepNumber === 1) { document.getElementById('step1Page').classList.remove('hidden'); document.getElementById('headerTitle').textContent = '🎯 § 2. Ризик: оцінювання і прийняття рішень'; state.currentStep = 1; }
+else if (stepNumber === 2) { document.getElementById('step2Page').classList.remove('hidden'); document.getElementById('headerTitle').textContent = '🧩 § 2. Види ризиків'; state.currentStep = 2; showS2('s2Theory'); }
+else if (stepNumber === 3) { document.getElementById('step3Page').classList.remove('hidden'); document.getElementById('headerTitle').textContent = '📊 § 2. Оцінка ризиків'; state.currentStep = 3; showS3('s3Theory'); }
+else if (stepNumber === 4) { document.getElementById('step4Page').classList.remove('hidden'); document.getElementById('headerTitle').textContent = '🔄 § 2. Розвиток ситуацій'; state.currentStep = 4; showS4('s4Theory'); initS4DragAndDrop(); }
+else if (stepNumber === 5) { document.getElementById('step5Page').classList.remove('hidden'); document.getElementById('headerTitle').textContent = '🧭 § 2. Рішення у невизначеності'; state.currentStep = 5; showS5('s5Theory'); initS5DragAndDrop(); }
+else if (stepNumber === 6) { document.getElementById('step6Page').classList.remove('hidden'); document.getElementById('headerTitle').textContent = '🏆 Самооцінювання'; state.currentStep = 6; updateStep6Display(); }
+else { document.getElementById('mainPage').classList.remove('hidden'); return; }
+saveProgress(); updateLiveProgress();
+window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function showS2(id) { resetMatchingState(); ['s2Theory', 's2Task1', 's2Task2', 's2Task3', 's2Task4'].forEach(s => { const el = document.getElementById(s); if (el) el.classList.add('hidden'); }); const t = document.getElementById(id); if (t) t.classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function showS3(id) { resetMatchingState(); ['s3Theory', 's3Task1', 's3Task2', 's3Task3', 's3Task4'].forEach(s => { const el = document.getElementById(s); if (el) el.classList.add('hidden'); }); const t = document.getElementById(id); if (t) t.classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function showS4(id) { resetMatchingState(); ['s4Theory', 's4Task1', 's4Task2', 's4Task3', 's4Task4'].forEach(s => { const el = document.getElementById(s); if (el) el.classList.add('hidden'); }); const t = document.getElementById(id); if (t) t.classList.remove('hidden'); if (id === 's4Task2') initS4DragAndDrop(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function showS5(id) { ['s5Theory', 's5Task1', 's5Task2', 's5Task3'].forEach(s => { const el = document.getElementById(s); if (el) el.classList.add('hidden'); }); const t = document.getElementById(id); if (t) t.classList.remove('hidden'); if (id === 's5Task1') initS5DragAndDrop(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+// ============ ЗАГАЛЬНІ ФУНКЦІЇ ============
+function toggleOption(element) { if (element.classList.contains('disabled')) return; element.classList.toggle('selected'); }
+function selectCategoryOption(option) {
+if (option.classList.contains('correct') || option.classList.contains('incorrect')) return;
+const block = option.closest('.category-block');
+block.querySelectorAll('.category-option').forEach(opt => opt.classList.remove('selected'));
+option.classList.add('selected');
+}
+function checkSingleTask(optsSel, fbId, taskId, okMsg) {
+const fb = document.getElementById(fbId); fb.style.display = 'block';
+const selected = document.querySelector(optsSel + ' .option.selected');
+if (!selected) { fb.className = 'feedback feedback-warning'; fb.innerHTML = '💡 Обери один варіант відповіді'; return; }
+if (selected.dataset.correct === 'true') {
+selected.classList.add('correct');
+fb.className = 'feedback feedback-success';
+fb.innerHTML = '<strong>✅ Правильно!</strong> ' + okMsg;
+document.querySelectorAll(optsSel + ' .option').forEach(o => { o.classList.add('disabled'); if (o.dataset.correct === 'true') o.classList.add('correct'); });
+onTaskSuccess(taskId);
+} else {
+selected.classList.add('incorrect');
+fb.className = 'feedback feedback-error';
+fb.innerHTML = '<strong>❌ Неправильно.</strong> Спробуй ще раз.';
+onTaskWrong(taskId);
+}
+}
+function checkMultiTask(optsSel, fbId, taskId, okMsg) {
+const options = document.querySelectorAll(optsSel + ' .option');
+const fb = document.getElementById(fbId); fb.style.display = 'block';
+const selected = Array.from(options).filter(o => o.classList.contains('selected'));
+if (selected.length === 0) { fb.className = 'feedback feedback-warning'; fb.innerHTML = '💡 Обери хоча б один варіант відповіді'; return; }
+let allCorrect = true;
+options.forEach(opt => {
+const should = opt.dataset.correct === 'true'; const is = opt.classList.contains('selected');
+if (should && is) opt.classList.add('correct');
+else if (!should && is) { opt.classList.add('incorrect'); allCorrect = false; }
+else if (should && !is) allCorrect = false;
+opt.classList.add('disabled');
+});
+if (allCorrect) { fb.className = 'feedback feedback-success'; fb.innerHTML = '<strong>✅ Правильно!</strong> ' + okMsg; onTaskSuccess(taskId); }
+else { fb.className = 'feedback feedback-error'; fb.innerHTML = '<strong>❌ Не зовсім правильно.</strong> Спробуй ще раз.'; onTaskWrong(taskId); options.forEach(opt => opt.classList.remove('correct', 'incorrect', 'disabled')); }
+}
+function retryMulti(optsSel, fbId, taskId) {
+if (stepIsDone(taskId)) { showToast('✅ Це завдання вже зараховано!'); return; }
+document.querySelectorAll(optsSel + ' .option').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect', 'disabled'));
+document.getElementById(fbId).style.display = 'none';
+showToast('🔄 Спробуй ще раз');
+}
+function stepIsDone(taskId) {
+for (let k in stepTracker) if (taskId.startsWith(k)) return stepTracker[k].tasks[taskId.split('_')[1]];
+return false;
+}
+function checkCategoryTask(blocksSel, fbId, taskId) {
+const blocks = document.querySelectorAll(blocksSel);
+const fb = document.getElementById(fbId); fb.style.display = 'block';
+let allSelected = true, allCorrect = true;
+blocks.forEach(block => {
+const selected = block.querySelector('.category-option.selected');
+if (!selected) { allSelected = false; return; }
+if (selected.dataset.correct === 'true') selected.classList.add('correct');
+else { selected.classList.add('incorrect'); allCorrect = false; block.querySelectorAll('.category-option').forEach(opt => { if (opt.dataset.correct === 'true') opt.classList.add('correct'); }); }
+selected.classList.remove('selected');
+});
+if (!allSelected) { fb.className = 'feedback feedback-warning'; fb.innerHTML = '💡 Обери відповідь у кожній ситуації!'; return; }
+if (allCorrect) { fb.className = 'feedback feedback-success'; fb.innerHTML = '<strong>✅ Чудово!</strong> Ти правильно оцінив(ла) всі ситуації.'; onTaskSuccess(taskId); }
+else { fb.className = 'feedback feedback-error'; fb.innerHTML = '<strong>❌ Є помилки.</strong> Правильні варіанти виділено зеленим.'; onTaskWrong(taskId); blocks.forEach(b => b.querySelectorAll('.category-option').forEach(opt => opt.classList.remove('correct', 'incorrect'))); }
+}
+function retryCategory(blocksSel, fbId, taskId) {
+if (stepIsDone(taskId)) { showToast('✅ Це завдання вже зараховано!'); return; }
+document.querySelectorAll(blocksSel + ' .category-option').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+document.getElementById(fbId).style.display = 'none';
+showToast('🔄 Спробуй ще раз');
+}
+function checkOrderTask(zonesSel, fbId, taskId) {
+const zones = document.querySelectorAll(zonesSel);
+const fb = document.getElementById(fbId); fb.style.display = 'block';
+let allFilled = true, allCorrect = true;
+zones.forEach(zone => {
+if (!zone.classList.contains('filled')) { allFilled = false; return; }
+if (parseInt(zone.dataset.position) === parseInt(zone.dataset.step)) { zone.classList.add('correct'); zone.classList.remove('incorrect'); }
+else { zone.classList.add('incorrect'); zone.classList.remove('correct'); allCorrect = false; }
+});
+if (!allFilled) { fb.className = 'feedback feedback-warning'; fb.innerHTML = '💡 Заповни всі позиції!'; return; }
+if (allCorrect) { fb.className = 'feedback feedback-success'; fb.innerHTML = '<strong>✅ Правильно!</strong> Послідовність визначено вірно.'; onTaskSuccess(taskId); }
+else { fb.className = 'feedback feedback-error'; fb.innerHTML = '<strong>❌ Неправильно.</strong> Спробуй ще раз!'; onTaskWrong(taskId); }
+}
+function retryOrder(sourceId, zonesSel, itemsHTML, fbId, taskId) {
+if (stepIsDone(taskId)) { showToast('✅ Це завдання вже зараховано!'); return; }
+document.querySelectorAll(zonesSel).forEach(zone => {
+zone.classList.remove('filled', 'correct', 'incorrect');
+zone.innerHTML = `<div class="drop-zone-number">${zone.dataset.position}</div><div class="drop-zone-text">Перетягни сюди</div>`;
+delete zone.dataset.step;
+});
+document.getElementById(sourceId).innerHTML = itemsHTML;
+if (sourceId === 's4DragItems') initS4DragAndDrop(); else initS5DragAndDrop();
+document.getElementById(fbId).style.display = 'none';
+showToast('🔄 Спробуй ще раз');
+}
+// ============ MATCHING (З ПАРНИМ ПІДСВІЧУВАННЯМ) ============
+let selectedConcept = null;
+let matchingPairs = {};
+function resetMatchingState() {
+matchingPairs = {}; selectedConcept = null;
+document.querySelectorAll('.matching-grid').forEach(grid => {
+grid.querySelectorAll('.matching-item').forEach(item => {
+item.classList.remove('selected','correct','incorrect','paired','pair-1','pair-2','pair-3','pair-4');
+const b = item.querySelector('.pair-num'); if (b) b.remove();
+});
+});
+['s2Task1Feedback','s4Task1Feedback'].forEach(id => { const fb = document.getElementById(id); if (fb) fb.style.display = 'none'; });
+}
+function selectMatchingConcept(item) {
+if (item.classList.contains('correct') || item.classList.contains('incorrect')) return;
+const grid = item.closest('.matching-grid'); if (!grid) return;
+grid.querySelectorAll('.matching-column:first-child .matching-item').forEach(i => {
+if (!i.classList.contains('correct') && !i.classList.contains('incorrect')) i.classList.remove('selected');
+});
+item.classList.add('selected');
+selectedConcept = item.dataset.concept;
+}
+function pairItems(conceptItem, conditionItem, num) {
+[conceptItem, conditionItem].forEach(el => {
+if (!el) return;
+el.classList.remove('selected');
+el.classList.add('paired', 'pair-' + num);
+let badge = el.querySelector('.pair-num');
+if (!badge) { badge = document.createElement('span'); badge.className = 'pair-num'; el.prepend(badge); }
+badge.textContent = num;
+});
+}
+function unpairItems(grid, concept, condition) {
+const c = grid.querySelector(`.matching-column:first-child .matching-item[data-concept="${concept}"]`);
+const i = grid.querySelector(`.matching-column:last-child .matching-item[data-condition="${condition}"]`);
+[c, i].forEach(el => {
+if (!el) return;
+el.classList.remove('paired','pair-1','pair-2','pair-3','pair-4','selected');
+const b = el.querySelector('.pair-num'); if (b) b.remove();
+});
+}
+function selectMatchingCondition(item) {
+if (!selectedConcept) { showToast('💡 Спочатку обери поняття зліва'); return; }
+if (item.classList.contains('correct') || item.classList.contains('incorrect')) return;
+const grid = item.closest('.matching-grid'); if (!grid) return;
+const condition = item.dataset.condition;
+const conceptItem = grid.querySelector(`.matching-column:first-child .matching-item[data-concept="${selectedConcept}"]`);
+for (const c in matchingPairs) {
+if (matchingPairs[c] === condition && c !== selectedConcept) {
+unpairItems(grid, c, condition); delete matchingPairs[c];
+}
+}
+if (matchingPairs[selectedConcept] && matchingPairs[selectedConcept] !== condition) {
+unpairItems(grid, selectedConcept, matchingPairs[selectedConcept]);
+}
+matchingPairs[selectedConcept] = condition;
+pairItems(conceptItem, item, selectedConcept);
+selectedConcept = null;
+showToast('✅ Пару зʼєднано!');
+}
+function checkMatchingTask(gridId, fbId, taskId, totalPairs) {
+const grid = document.getElementById(gridId);
+const fb = document.getElementById(fbId); fb.style.display = 'block';
+if (Object.keys(matchingPairs).length < totalPairs) { fb.className = 'feedback feedback-warning'; fb.innerHTML = `💡 Зʼєднано ${Object.keys(matchingPairs).length} з ${totalPairs} пар. Зʼєднай усі!`; return; }
+let correctCount = 0;
+grid.querySelectorAll('.matching-item').forEach(it => {
+it.classList.remove('correct','incorrect','paired','pair-1','pair-2','pair-3','pair-4');
+const b = it.querySelector('.pair-num'); if (b) b.remove();
+});
+for (let concept in matchingPairs) {
+const sel = matchingPairs[concept];
+const conceptItem = grid.querySelector(`.matching-column:first-child .matching-item[data-concept="${concept}"]`);
+const conditionItem = grid.querySelector(`.matching-column:last-child .matching-item[data-condition="${sel}"]`);
+if (concept === sel) { if (conceptItem) conceptItem.classList.add('correct'); if (conditionItem) conditionItem.classList.add('correct'); correctCount++; }
+else { if (conceptItem) conceptItem.classList.add('incorrect'); if (conditionItem) conditionItem.classList.add('incorrect'); }
+}
+if (correctCount === totalPairs) { fb.className = 'feedback feedback-success'; fb.innerHTML = `<strong>✅ Чудово!</strong> Всі ${totalPairs} пар зʼєднано правильно!`; onTaskSuccess(taskId); }
+else { fb.className = 'feedback feedback-error'; fb.innerHTML = `<strong>❌ Правильно: ${correctCount} з ${totalPairs}.</strong> Неправильні пари виділено червоним.`; onTaskWrong(taskId); }
+}
+function retryMatching(gridId, fbId, taskId) {
+if (stepIsDone(taskId)) { showToast('✅ Це завдання вже зараховано!'); return; }
+const grid = document.getElementById(gridId);
+if (grid) grid.querySelectorAll('.matching-item').forEach(item => {
+item.classList.remove('selected','correct','incorrect','paired','pair-1','pair-2','pair-3','pair-4');
+const b = item.querySelector('.pair-num'); if (b) b.remove();
+});
+matchingPairs = {}; selectedConcept = null;
+document.getElementById(fbId).style.display = 'none';
+showToast('🔄 Спробуй зʼєднати ще раз');
+}
+// ============ ІНТЕРАКТИВНА МАТРИЦЯ РИЗИКУ ============
+const MATRIX_DATA = {
+'low-low': { icon: '🟢', level: 'Низький ризик', combo: 'Низька ймовірність + Низькі наслідки', desc: 'Низький ризик — достатньо уважності та дотримання правил (контроль і спостереження).', examples: ['Забутий вдома ключ', 'Запізнення на 5 хвилин', 'Невелика подряпина'] },
+'low-medium': { icon: '🟢', level: 'Низький ризик', combo: 'Низька ймовірність + Середні наслідки', desc: 'Низький ризик — достатньо уважності та дотримання правил (контроль і спостереження).', examples: ['Втрата зошита', 'Зламаний чохол телефона'] },
+'low-high': { icon: '🟡', level: 'Середній ризик', combo: 'Низька ймовірність + Високі наслідки', desc: 'Середній ризик — потрібні додаткові заходи для зменшення ризику.', examples: ['Землетрус (малоймовірний у більшості регіонів)', 'Пожежа за справного датчика диму'] },
+'medium-low': { icon: '🟢', level: 'Низький ризик', combo: 'Середня ймовірність + Низькі наслідки', desc: 'Низький ризик — достатньо уважності та дотримання правил (контроль і спостереження).', examples: ['Збій інтернету', 'Незапланована дрібна витрата грошей'] },
+'medium-medium': { icon: '🟡', level: 'Середній ризик', combo: 'Середня ймовірність + Середні наслідки', desc: 'Середній ризик — потрібні додаткові заходи для зменшення ризику.', examples: ['Втрата телефона', 'Кібербулінг'] },
+'medium-high': { icon: '🔴', level: 'Високий ризик', combo: 'Середня ймовірність + Високі наслідки', desc: 'Високий ризик — потрібні негайні дії для запобігання небезпеці.', examples: ['Пожежа в багатоповерхівці', 'Аварія на нерегульованому перехресті'] },
+'high-low': { icon: '🟡', level: 'Середній ризик', combo: 'Висока ймовірність + Низькі наслідки', desc: 'Середній ризик — потрібні додаткові заходи для зменшення ризику.', examples: ['Перевтома', 'Простуда, якщо одягатися не по погоді'] },
+'high-medium': { icon: '🔴', level: 'Високий ризик', combo: 'Висока ймовірність + Середні наслідки', desc: 'Високий ризик — потрібні негайні дії для запобігання небезпеці.', examples: ['Серйозна ДТП (без паска безпеки)', 'Обстріл (якщо не перебувати в укритті)'] },
+'high-high': { icon: '🔴', level: 'Високий ризик', combo: 'Висока ймовірність + Високі наслідки', desc: 'Високий ризик — потрібні негайні дії для запобігання небезпеці.', examples: ['Аварія на хімічному підприємстві'] }
+};
+function openMatrixCell(key) {
+const data = MATRIX_DATA[key]; if (!data) return;
+lastFocused = document.activeElement;
+document.getElementById('matrixModalTitle').textContent = data.icon + ' ' + data.level;
+document.getElementById('matrixModalCombo').textContent = data.combo;
+document.getElementById('matrixModalDesc').textContent = data.desc;
+document.getElementById('matrixModalExamples').innerHTML = data.examples.map(ex => `<li>${ex}</li>`).join('');
+document.getElementById('matrixModal').classList.add('active');
+document.querySelector('#matrixModal .modal-close').focus();
+}
+// ============ 🆕 КАРТКИ РИЗИКІВ (ЗАВДАННЯ 3, КРОК 3) ============
+const RISK_CARD_INFO = {
+maxim: { ok: 'Висока ймовірність (мокра дорога, без шолома, поспіх) + серйозні наслідки (травми) = високий ризик.', err: 'Подумай: мокра дорога, відсутність шолома та поспіх суттєво підвищують і ймовірність, і тяжкість наслідків.' },
+olia: { ok: 'Висока ймовірність шахрайства (підозріло низькі ціни) + серйозні наслідки (втрата грошей, даних картки) = високий ризик.', err: 'Невідомий магазин із «занадто вигідними» цінами — типова ознака шахрайства: наслідки серйозні, ймовірність висока.' },
+zakhar: { ok: 'Ймовірність середня, наслідки помірні (втрата пристрою, особистих даних) = середній ризик. Його можна зменшити: повідомити перевізника, скористатися пошуком пристрою.', err: 'Не низький і не високий: телефон можуть і повернути, але ризик втрати даних реальний = середній ризик.' },
+solomia: { ok: 'Ймовірність висока, але наслідки помірні (стрес, репутація), без загрози здоровʼю = середній ризик.', err: 'Загрози життю чи здоровʼю немає — наслідки помірні (стрес, репутація). Це середній ризик.' }
+};
+const riskCardsState = { solved: {}, wrongOnce: false };
+function pickRiskLevel(btn) {
+const card = btn.closest('.risk-card'); if (card.classList.contains('solved')) return;
+const info = RISK_CARD_INFO[card.dataset.card], fb = card.querySelector('.risk-card-feedback');
+card.querySelectorAll('.risk-lvl').forEach(b => b.classList.remove('wrong', 'right'));
+if (btn.dataset.val === card.dataset.correct) {
+btn.classList.add('right'); card.classList.add('solved');
+fb.hidden = false; fb.className = 'risk-card-feedback ok'; fb.innerHTML = '<strong>✅ Правильно!</strong> ' + info.ok;
+riskCardsState.solved[card.dataset.card] = true; updateRiskCardsProgress();
+if (Object.keys(riskCardsState.solved).length === 4) {
+const all = document.getElementById('s3Task3Feedback');
+all.style.display = 'block'; all.className = 'feedback feedback-success';
+all.innerHTML = '<strong>✅ Чудово!</strong> Ти правильно оцінив(ла) всі ситуації.';
+onTaskSuccess('step3_task3');
+}
+} else {
+btn.classList.add('wrong');
+fb.hidden = false; fb.className = 'risk-card-feedback err'; fb.innerHTML = '❌ ' + info.err;
+if (!riskCardsState.wrongOnce) { riskCardsState.wrongOnce = true; onTaskWrong('step3_task3'); }
+}
+}
+function updateRiskCardsProgress() {
+const el = document.getElementById('riskCardsProgress');
+if (el) el.textContent = 'Карток розвʼязано: ' + Object.keys(riskCardsState.solved).length + '/4';
+}
+function retryRiskCards() {
+if (stepIsDone('step3_task3')) { showToast('✅ Це завдання вже зараховано!'); return; }
+riskCardsState.solved = {}; riskCardsState.wrongOnce = false;
+document.querySelectorAll('#riskCards3 .risk-card').forEach(c => {
+c.classList.remove('solved');
+c.querySelectorAll('.risk-lvl').forEach(b => b.classList.remove('wrong', 'right'));
+const fb = c.querySelector('.risk-card-feedback'); fb.hidden = true; fb.innerHTML = '';
+});
+updateRiskCardsProgress();
+const fbAll = document.getElementById('s3Task3Feedback'); if (fbAll) fbAll.style.display = 'none';
+showToast('🔄 Спробуй ще раз');
+}
+// ============ АКОРДЕОН + СИТУАЦІЯ З АЛЬБІНОЮ ============
+function toggleAcc(btn) {
+const item = btn.closest('.acc-item');
+const open = item.classList.toggle('open');
+btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+const albinaState = { q1: false, q2: false, q3: false, q4: false };
+function albinaSingle(el) {
+if (el.classList.contains('disabled')) return;
+el.closest('.task-options').querySelectorAll('.option').forEach(o => o.classList.remove('selected','incorrect','correct'));
+el.classList.add('selected');
+}
+function albinaToggle(el) {
+if (el.classList.contains('disabled')) return;
+el.classList.toggle('selected'); el.classList.remove('incorrect','correct');
+}
+function checkAlbinaSub(groupId, fbId, qKey, okMsg) {
+const group = document.getElementById(groupId);
+const fb = document.getElementById(fbId); fb.style.display = 'block';
+const options = group.querySelectorAll('.option');
+const selected = Array.from(options).filter(o => o.classList.contains('selected'));
+if (selected.length === 0) { fb.className = 'feedback feedback-warning'; fb.innerHTML = '💡 Обери варіант(и) відповіді'; return; }
+const isSingle = group.dataset.type === 'single';
+let ok = true;
+if (isSingle) {
+if (selected.length === 1 && selected[0].dataset.correct === 'true') selected[0].classList.add('correct');
+else { selected.forEach(o => o.classList.add('incorrect')); ok = false; }
+} else {
+options.forEach(opt => {
+const should = opt.dataset.correct === 'true', is = opt.classList.contains('selected');
+if (should && is) opt.classList.add('correct');
+else if (!should && is) { opt.classList.add('incorrect'); ok = false; }
+else if (should && !is) ok = false;
+});
+}
+if (ok) {
+fb.className = 'feedback feedback-success'; fb.innerHTML = '<strong>✅ Правильно!</strong> ' + okMsg;
+options.forEach(o => o.classList.add('disabled'));
+albinaDone(qKey);
+} else {
+fb.className = 'feedback feedback-error'; fb.innerHTML = '<strong>❌ Неправильно.</strong> Спробуй ще раз.';
+onTaskWrong('step5_task3');
+}
+}
+function albinaDone(qKey) {
+albinaState[qKey] = true;
+const acc = document.getElementById('acc-' + qKey);
+if (acc) {
+acc.classList.add('done');
+const st = acc.querySelector('.acc-status'); if (st) st.textContent = '✅ Виконано';
+const btn = acc.querySelector('.acc-body .btn-primary'); if (btn) btn.style.display = 'none';
+acc.classList.remove('open');
+const h = acc.querySelector('.acc-header'); if (h) h.setAttribute('aria-expanded','false');
+}
+if (albinaState.q1 && albinaState.q2 && albinaState.q3 && albinaState.q4) {
+const fb = document.getElementById('albinaFinalFeedback');
+fb.style.display = 'block'; fb.className = 'feedback feedback-success';
+fb.innerHTML = '<strong>🎉 Чудово!</strong> Ти проаналізував(ла) всю ситуацію з Альбіною та обрав(ла) безпечні рішення.';
+onTaskSuccess('step5_task3');
+} else {
+const next = ['q1','q2','q3','q4'].find(k => !albinaState[k]);
+if (next) {
+const nextAcc = document.getElementById('acc-' + next);
+if (nextAcc && !nextAcc.classList.contains('open')) {
+nextAcc.classList.add('open');
+const h = nextAcc.querySelector('.acc-header'); if (h) h.setAttribute('aria-expanded','true');
+}
+}
+}
+}
+// ============ КРОК 6 ============
+function rate(skillIndex, rating) {
+state.selfRatings[skillIndex - 1] = rating; saveProgress();
+const ratingContainer = document.querySelector(`.star-rating[data-skill="${skillIndex}"]`);
+if (!ratingContainer) return;
+const stars = ratingContainer.querySelectorAll('.star');
+stars.forEach((star, idx) => { if (idx < rating) star.classList.add('active'); else star.classList.remove('active'); });
+}
+function resetProgress() {
+if (confirm('Ти впевнений(а), що хочеш почати спочатку? Весь прогрес буде скинуто.')) {
+localStorage.removeItem(STORAGE_KEY);
+location.reload();
+}
+}
+// ============ TOAST ============
+function showToast(message, icon = '✅') {
+const container = document.getElementById('toastContainer'); if (!container) return;
+const toast = document.createElement('div');
+toast.className = 'toast';
+toast.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-message">${message}</span>`;
+container.appendChild(toast);
+setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 400); }, 4000);
+}
+// ============ МОДАЛЬНІ ВІКНА ============
+let lastFocused = null;
+function showProgressModal() {
+lastFocused = document.activeElement;
+updateStep6Display();
+document.getElementById('progressModal').classList.add('active');
+const totalTasks = 16;
+let completedTasks = 0;
+for (let i = 1; i <= 5; i++) completedTasks += stepTracker['step' + i].completed;
+const percent = Math.min(100, Math.round((completedTasks / totalTasks) * 100));
+const accuracy = progressTracker.total > 0 ? Math.round((progressTracker.correct / progressTracker.total) * 100) : 0;
+const completedSteps = Object.values(stepsCompleted).filter(v => v).length;
+const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+el('modalTasks', `${completedTasks}/${totalTasks}`); el('modalCorrect', progressTracker.correct);
+el('modalSteps', `${completedSteps}/5`); el('modalAccuracy', `${accuracy}%`); el('modalProgressPercent', `${percent}%`);
+const bar = document.getElementById('modalProgressBar'); if (bar) bar.style.width = `${percent}%`;
+let level = 'Початківець', emoji = '⭐☆☆☆☆';
+if (percent >= 76) { level = 'Експерт безпечних рішень'; emoji = '⭐⭐⭐⭐⭐'; }
+else if (percent >= 51) { level = 'Дослідник'; emoji = '⭐⭐⭐☆☆'; }
+else if (percent >= 26) { level = 'Учень'; emoji = '⭐⭐☆☆☆'; }
+el('modalLevelName', level); el('modalLevelEmoji', emoji);
+document.querySelector('#progressModal .modal-close').focus();
+}
+function showHelpModal() { lastFocused = document.activeElement; document.getElementById('helpModal').classList.add('active'); document.querySelector('#helpModal .modal-close').focus(); }
+function closeModal(modalId) {
+document.getElementById(modalId).classList.remove('active');
+if (lastFocused) lastFocused.focus();
+}
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+});
+document.addEventListener('keydown', function(e) {
+if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(modal => modal.classList.remove('active'));
+if (e.key === 'Tab') {
+const active = document.querySelector('.modal-overlay.active');
+if (active) {
+const focusables = active.querySelectorAll('button, [tabindex="0"]');
+if (focusables.length) {
+const first = focusables[0], last = focusables[focusables.length - 1];
+if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+}
+}
+});
+// ============ ІНІЦІАЛІЗАЦІЯ ============
+document.addEventListener('DOMContentLoaded', function() {
+loadProgress();
+goToMainPage();
+console.log('🚀 Тренажер §2 (фінальна версія з усіма виправленнями) завантажено');
+console.log('✅ Виправлено: s3Task1, s1Task1, s3Task4, s4Task3 (selectSingle)');
+console.log('✅ Адаптовано: s4Task2 (situation-box + нові картки)');
+});
+</script>
+</body>
+</html>
